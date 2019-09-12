@@ -8,6 +8,7 @@ import threading
 import recordtype
 #import jsonpickle
 import math as m
+from numpy import linalg as LA
 from datetime import datetime, timedelta
 import numpy as np
 import copy
@@ -46,15 +47,14 @@ class Controller(threading.Thread):
     def run(self):
         while(not self.stoprequest.is_set()):
             loopStartTime = datetime.now()
-#	    self.pushStateToTxQueue()
-            while(not self.stoprequest.is_set()):
-                try:
-                    msg = self.receiveQueue.get(False)
-                    self.parseMessage(msg)
-                    #print(msg)
-                except Queue.Empty:
-                    break
-	    self.pushStateToTxQueue()
+            #while(not self.stoprequest.is_set()):
+            #    try:
+            #        msg = self.receiveQueue.get(False)
+            #        self.parseMessage(msg)
+            #        #print(msg)
+            #    except Queue.Empty:
+            #        break
+	    #self.pushStateToTxQueue()
 	    while (not self.stoprequest.is_set()):
 		try:
 		    msg = self.receiveQueue.get(False)
@@ -317,6 +317,11 @@ class Controller(threading.Thread):
         self.vehicleState.attitude['yaw'] = msg.content['attitude']['yaw']
         self.vehicleState.attitude['roll'] = self.vehicle.attitude.roll
         self.vehicleState.attitude['pitch'] = self.vehicle.attitude.pitch
+	self.vehicleState.attitude['roll_rate'] = self.vehicle.attitude.rollspeed
+	self.vehicleState.attitude['pitch_rate'] = self.vehicle.attitude.pitchspeed
+	self.vehicleState.attitude['yaw_rate'] = self.vehicle.attitude.yawspeed
+	self.vehicleState.attitude['time'] = self.vehicle.attitude.time
+	self.vehicleState.attitude['rel_time'] = (self.vehicleState.attitude['time'] - self.startTime).total_seconds()
         self.vehicleState.channels['roll'] = self.vehicle.channels['1']
 	self.vehicleState.channels['pitch'] = self.vehicle.channels['2']
 	self.vehicleState.channels['throttle'] = self.vehicle.channels['3']
@@ -346,6 +351,7 @@ class Controller(threading.Thread):
         self.vehicleState.leader['ugx'] = msg.content['leader']['ugx']
         self.vehicleState.leader['ugy'] = msg.content['leader']['ugy']
         self.vehicleState.leader['ugz'] = msg.content['leader']['ugz']
+	#print(self.vehicle.attitude)
 
         
     def pushStateToTxQueue(self):
@@ -451,11 +457,13 @@ class Controller(threading.Thread):
         accPosError = self.antiWindupVec(qg,np.matrix([[-10],[-10],[-10]]),np.matrix([[10],[10],[10]]),accPosPrev,intPrep)
         # Compute the control (note the negative feedback gives us the following deltas)
         dp = pg - pi #+ np.dot(Rg_dot,self.vehicleState.R2T[:,ID-1])
-        uk = ug + np.dot(kp,dq) + np.dot(kd,dp) + np.dot(ki,accPosError)
+	temp_dq = self.controlFunction(dq)
+	temp_dp = self.controlFunction(dp)
+        uk = ug + np.dot(kp,temp_dq) + np.dot(kd,temp_dp) + np.dot(ki,accPosError)
 	# Add the collision avoidance term
 	#avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
 	#uk = np.dot(scale,uk) + avoid
-	self.vehicleState.leader['psi_d'] = 0.0
+	self.vehicleState.leader['psi_d'] = 0.0 #1.57
 	# Estimate the desired velocity
         pkp = np.matrix([[self.vehicleState.controlState['vx_des']],[self.vehicleState.controlState['vy_des']],[self.vehicleState.controlState['vz_des']]])
         #ukp = np.matrix([[self.vehicleState.controlState['ux_des']],[self.vehicleState.controlState['uy_des']],[self.vehicleState.controlState['uz_des']]])
@@ -520,12 +528,29 @@ class Controller(threading.Thread):
 		    dij = (self.vehicleState.R2T[:,ID-1] - self.vehicleState.R2T[:,i-1])
 		    dqj = qj - qi + np.dot(Rg_IB,dij)
 		    dpj = pj - pi + np.dot(Rg_dot,dij)
-		    interAgent = interAgent + np.dot(kAlpha,dqj) + np.dot(kBeta,dpj)
+		    #####################
+		    #! Use this for linear control
+		    #interAgent = interAgent + np.dot(kAlpha,dqj) + np.dot(kBeta,dpj)
+		    #####################
+		    #! Use this for nonlinear control
+		    temp_dqj = self.controlFunction(dqj)
+		    temp_dpj = self.controlFunction(dpj)
+		    print(temp_dqj)
+		    interAgent = interAgent + np.dot(kAlpha,temp_dqj) + np.dot(kBeta,dpj)
+		    ####################
 	### Compute the leader control ###
 	dia = self.vehicleState.R2T[:,ID-1]
 	dqg = qg - qi + np.dot(Rg_IB,dia)
 	dpg = pg - pi + np.dot(Rg_dot,dia)
-	leader = np.dot(kGamma,dqg) + np.dot(kEta,dpg)
+	################################
+	#! Use this for linear control
+	#leader = np.dot(kGamma,dqg) + np.dot(kEta,dpg)
+	################################
+	#! Use this for nonlinear control
+	temp_dqg = self.controlFunction(dqg)
+	temp_dpg = self.controlFunction(dpg)
+	#print(temp_dqg)
+	leader = np.dot(kGamma,temp_dqg) + np.dot(kEta,temp_dpg)
 	### Compute desired yaw angle ###
 	rel_pos = qi - qg
 	dig = np.dot(Rg_IB,-dia)
@@ -605,8 +630,8 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['thrust'] = config['quadMass']*(config['grav'] - uk[2,0] + kw*(pi[2,0] - pk[2,0]) + intGain*self.vehicleState.accumulator['intZVelError'])/(np.cos(self.vehicleState.attitude['roll'])*np.cos(self.vehicleState.attitude['pitch']))
         self.vehicleState.controlState['pitch'] = np.arctan(((uk[0,0] - ku*(pi[0,0] - pk[0,0]))*np.cos(self.vehicleState.attitude['yaw']) + (uk[1,0] - kv*(pi[1,0] - pk[1,0]))*np.sin(self.vehicleState.attitude['yaw']))/(-config['grav'] + uk[2,0] - kw*(pi[2,0] - pk[2,0]) - intGain*self.vehicleState.accumulator['intZVelError']))
         self.vehicleState.controlState['roll'] = np.arctan(((uk[0,0] - ku*(pi[0,0] - pk[0,0]))*np.cos(self.vehicleState.controlState['pitch'])*np.sin(self.vehicleState.attitude['yaw']) - (uk[1,0] - kv*(pi[1,0] - pk[1,0]))*np.cos(self.vehicleState.controlState['pitch'])*np.cos(self.vehicleState.attitude['yaw']))/(-config['grav'] + uk[2,0] - kw*(pi[2,0] - pk[2,0]) - intGain*self.vehicleState.accumulator['intZVelError']))
-        print(rp_command)
-	print((self.vehicleState.controlState['pitch'],self.vehicleState.controlState['roll']))
+        #print(rp_command)
+	#print((self.vehicleState.controlState['pitch'],self.vehicleState.controlState['roll']))
 	#print(thrust)
 	#print(self.vehicleState.controlState['thrust'])
 	#dPsi = self.wrapToPi((self.vehicleState.leader['psi_d'] - self.vehicleState.attitude['yaw']))
@@ -629,8 +654,37 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['pitch_PWM'] = self.saturate(PITCH,1000,2000)
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
-        self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
+	if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
+	#if( True):
+		self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
+		print('hello')
+        	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
         
+
+    def controlFunction(self,delta):
+	#! Linear Control
+	#val = delta
+	
+	#! Normalized Dynamics (3-Dims arecoupled) ---> output vector has magnitude 1
+	#scale = 1.0
+	#num = delta
+	#temp1 = LA.norm(delta) ** 2
+	#den = np.sqrt(scale + temp1)
+	#val = num / den
+	
+	#! Normalized Dynamics ---> Magnitude of each direction approaches 1
+	scale = 1.0
+	num = delta
+	temp1 = np.power(delta,2)
+	den = np.sqrt(scale + temp1)
+	val = num / den
+
+	#! Hyperbolic Tangent ---> Magnitude of each direction approaches 1
+	#val = np.empty(3)
+	#val[0] = m.tanh(delta[0])
+	#val[1] = m.tanh(delta[1])
+	#val[2] = m.tanh(delta[2])
+	return val
 
     def computeMiddleLoopControl(self,config,gains,uk,pk,pi):
 	pi_prime = np.matrix([[0.0],[0.0]])

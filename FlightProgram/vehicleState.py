@@ -97,7 +97,7 @@ class FullVehicleState(BasicVehicleState):
 			    'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0,
 			    'omegaX': 0.0, 'omegaY': 0.0, 'omegaZ': 0.0, 'omegaX_dot': 0.0, 'omegaY_dot': 0.0, 'omegaZ_dot': 0.0,
 			    'roll_rate_prev': 0.0, 'pitch_rate_prev': 0.0, 'yaw_rate_prev': 0.0, 'psi_d': 0.0}
-        self.attitude = {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0, 'roll_rate': 0.0, 'pitch_rate': 0.0, 'yaw_rate': 0.0}
+        self.attitude = {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0, 'roll_rate': 0.0, 'pitch_rate': 0.0, 'yaw_rate': 0.0, 'time': None, 'rel_time': 0.0, 'prev_time': 0.0}
         self.initPos = {'x': None, 'y': None, 'z': None}
         self.accumulator = {'intXPosError': 0.0, 'intYPosError': 0.0, 'intZPosError': 0.0, 'intZVelError': 0.0}
         self.controlState = {'vx_des': 0.0, 'vy_des': 0.0, 'vz_des': 0.0, 'ux_des': 0.0, 'uy_des': 0.0, 'uz_des': 0.0,
@@ -116,8 +116,8 @@ class FullVehicleState(BasicVehicleState):
         headers = base.keys()
         values = base.values()
 
-        headers += ['roll', 'pitch', 'yaw']
-        values += [self.attitude['roll'], self.attitude['pitch'], self.attitude['yaw']]
+        headers += ['roll', 'pitch', 'yaw','att_time','att_rel_time']
+        values += [self.attitude['roll'], self.attitude['pitch'], self.attitude['yaw'],self.attitude['time'],self.attitude['rel_time']]
 
 	headers += ['roll_rate','pitch_rate','yaw_rate']
 	values += [self.attitude['roll_rate'],self.attitude['pitch_rate'],self.attitude['yaw_rate']]
