@@ -4,4 +4,6 @@ This flight program for formation flying with rotorcraft who utilized arducopter
 
 This flight program uses a modified version of dronekit-python to interface with the flight controller.
 
+Requires 'test' branch of Chris' version of dronekit
+
 A nonlinear control function is used to account for actuator saturation.
