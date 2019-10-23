@@ -8,6 +8,7 @@ import threading
 import recordtype
 #import jsonpickle
 import math as m
+from numpy import linalg as LA
 from datetime import datetime, timedelta
 import numpy as np
 import copy
@@ -46,21 +47,21 @@ class Controller(threading.Thread):
     def run(self):
         while(not self.stoprequest.is_set()):
             loopStartTime = datetime.now()
-#	    self.pushStateToTxQueue()
-            while(not self.stoprequest.is_set()):
-                try:
-                    msg = self.receiveQueue.get(False)
-                    self.parseMessage(msg)
-                    #print(msg)
-                except Queue.Empty:
-                    break
-	    self.pushStateToTxQueue()
+            #while(not self.stoprequest.is_set()):
+            #    try:
+            #        msg = self.receiveQueue.get(False)
+            #        self.parseMessage(msg)
+            #        #print(msg)
+            #    except Queue.Empty:
+            #        break
+	    #self.pushStateToTxQueue()
 	    while (not self.stoprequest.is_set()):
 		try:
 		    msg = self.receiveQueue.get(False)
 		    self.parseMessage(msg)
 		except Queue.Empty:
 		    break
+	    self.getVehicleState()
             # Need to put a GPS conditional here to ensure we have position data
             if(not self.vehicleState.parameters.config['initPos']):
                 self.vehicleState.parameters.config['initPos'] = self.setInitialPos()
@@ -94,8 +95,8 @@ class Controller(threading.Thread):
 	    print('hello')
 	    self.getHoverData()
 	    self.vehicleState.parameters.config['isHovering'] = True
-        self.vehicleState.leader['qgx'] = self.vehicleState.hover['x']
-        self.vehicleState.leader['qgy'] = self.vehicleState.hover['y']
+        self.vehicleState.leader['lat'] = self.vehicleState.hover['lat']
+        self.vehicleState.leader['lon'] = self.vehicleState.hover['lon']
         self.vehicleState.leader['qgz'] = self.vehicleState.hover['z']
 	self.vehicleState.leader['pgx'] = 0.0
 	self.vehicleState.leader['pgy'] = 0.0
@@ -110,8 +111,8 @@ class Controller(threading.Thread):
     def RTL(self):
 	self.vehicleState.parameters.config['isHovering'] = False
 	self.vehicleState.parameters.config['isFormation'] = False
-	self.vehicleState.leader['qgx'] = self.vehicleState.initPos['x']
-	self.vehicleState.leader['qgy'] = self.vehicleState.initPos['y']
+	self.vehicleState.leader['lat'] = self.vehicleState.initPos['lat']
+	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
 	self.vehicleState.leader['qgz'] = -self.vehicleState.parameters.config['targetAltitude']
 	self.vehicleState.leader['pgx'] = 0.0
 	self.vehicleState.leader['pgy'] = 0.0
@@ -143,8 +144,8 @@ class Controller(threading.Thread):
     def landing(self):
 	self.vehicleState.parameters.config['isHovering'] = False
 	self.vehicleState.parameters.config['isFormation'] = False
-	self.vehicleState.leader['qgx'] = self.vehicleState.initPos['x']
-	self.vehicleState.leader['qgy'] = self.vehicleState.initPos['y']
+	self.vehicleState.leader['lat'] = self.vehicleState.initPos['lat']
+	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
 	self.vehicleState.leader['qgz'] = self.vehicleState.initPos['z']
 	self.vehicleState.leader['pgx'] = 0.0
 	self.vehicleState.leader['pgy'] = 0.0
@@ -157,8 +158,8 @@ class Controller(threading.Thread):
             self.computeLandingVelocity(desDest)
 
     def takeoff(self):
-	self.vehicleState.leader['qgx'] = self.vehicleState.initPos['x']
-	self.vehicleState.leader['qgy'] = self.vehicleState.initPos['y']
+	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
+	self.vehicleState.leader['lat'] = self.vehicleState.initPos['lat']
 	self.vehicleState.leader['qgz'] = -self.vehicleState.parameters.config['targetAltitude']
 	self.vehicleState.leader['pgx'] = 0.0
 	self.vehicleState.leader['pgy'] = 0.0
@@ -188,9 +189,9 @@ class Controller(threading.Thread):
     def prepTakeoff(self):
         self.vehicle.mode = VehicleMode('STABILIZE')
         print("Arming motors")
-        self.vehicle.channels.overrides = {'3': 1000}
+        #self.vehicle.channels.overrides = {'3': 1000}
         time.sleep(2)
-        self.vehicle.armed = True
+        #self.vehicle.armed = True
 
     def computeTakeoffVelocity(self,desDest):
 	print(self.vehicleState.leader['qgz'])
@@ -212,7 +213,7 @@ class Controller(threading.Thread):
                 self.computeControl()
                 print("Landing")
         elif(self.vehicleState.position['z'] >= (self.vehicleState.initPos['z'] - 0.05)):
-            self.vehicle.channels.overrides = {'3': 1000}
+            #self.vehicle.channels.overrides = {'3': 1000}
             self.vehicle.armed = False
             self.vehicleState.parameters.config['isTakeoff'] = False
             print("Vehicle landed")
@@ -291,43 +292,48 @@ class Controller(threading.Thread):
 
     def parseMessage(self,msg):
         ID = msg.content['ID']
-	#print(msg.content['timestamp'])
-        #self.stateVehicles[ID] = copy.deepcopy(BasicVehicleState())
-        #self.stateVehicles[ID].ID = ID
-        #self.stateVehicles[ID].counter += 1
-        #self.stateVehicles[ID].position = msg.content['position']
-        #self.stateVehicles[ID].velocity = msg.content['velocity']
-        #self.stateVehicles[ID].timestamp = datetime.now()
         if (msg.content['type'] == 0):
-	    if (ID ==  self.vehicleState.ID):
-        	self.updateGlobalStateWithData(ID,msg)
+		self.updateGlobalStateWithData(ID,msg)
 	#elif (msg.content['type'] == 1):
-	    else:
+	elif(msg.content['type'] == 1):
 	    #self.stateVehicles[ID] = copy.deepcopy(BasicVehicleState())
 	    	self.stateVehicles[ID].ID = ID
 	    	self.stateVehicles[ID].counter += 1
 	    	self.stateVehicles[ID].position = msg.content['position']
 	    	self.stateVehicles[ID].velocity = msg.content['velocity']
-	    	self.stateVehicles[ID].timestamp = msg.content['timestamp'] #datetime.now()
+	    	self.stateVehicles[ID].timestamp = datetime.now()
+	#else:
+	#	self.getVehicleState()
         #print(self.stateVehicles)
         
-    def updateGlobalStateWithData(self,ID,msg):
-        self.vehicleState.position = msg.content['position']
-        self.vehicleState.velocity = msg.content['velocity']
-        self.vehicleState.attitude['yaw'] = msg.content['attitude']['yaw']
-        self.vehicleState.attitude['roll'] = self.vehicle.attitude.roll
-        self.vehicleState.attitude['pitch'] = self.vehicle.attitude.pitch
+    def getVehicleState(self):
+	self.vehicleState.position['lat'] = self.vehicle.location.global_relative_frame.lat
+	self.vehicleState.position['lon'] = self.vehicle.location.global_relative_frame.lon
+	self.vehicleState.position['z'] = -self.vehicle.location.global_relative_frame.alt
+	self.vehicleState.velocity['vx'] = self.vehicle.velocity[0]
+	self.vehicleState.velocity['vy'] = self.vehicle.velocity[1]
+	self.vehicleState.velocity['vz'] = self.vehicle.velocity[2]
+	self.vehicleState.attitude['yaw'] = self.vehicle.attitude.yaw
+	self.vehicleState.attitude['roll'] = self.vehicle.attitude.roll
+	self.vehicleState.attitude['pitch'] = self.vehicle.attitude.pitch
+	self.vehicleState.attitude['roll_rate'] = self.vehicle.attitude.rollspeed
+        self.vehicleState.attitude['pitch_rate'] = self.vehicle.attitude.pitchspeed
+        self.vehicleState.attitude['yaw_rate'] = self.vehicle.attitude.yawspeed
+        self.vehicleState.attitude['time'] = self.vehicle.attitude.time
+        self.vehicleState.attitude['rel_time'] = (self.vehicleState.attitude['time'] - self.startTime).total_seconds()
         self.vehicleState.channels['roll'] = self.vehicle.channels['1']
-	self.vehicleState.channels['pitch'] = self.vehicle.channels['2']
-	self.vehicleState.channels['throttle'] = self.vehicle.channels['3']
-	self.vehicleState.channels['yaw'] = self.vehicle.channels['4']
+        self.vehicleState.channels['pitch'] = self.vehicle.channels['2']
+        self.vehicleState.channels['throttle'] = self.vehicle.channels['3']
+        self.vehicleState.channels['yaw'] = self.vehicle.channels['4']
         self.vehicleState.droneState['battVolt'] = self.vehicle.battery.voltage
-        self.vehicleState.timestamp = msg.content['timestamp'] #datetime.now()
+        self.vehicleState.timestamp = self.vehicle.location.global_relative_frame.time
+
+    def updateGlobalStateWithData(self,ID,msg):
         self.vehicleState.flightSeq = msg.content['flightSeq']
         # Update the leader states
-        self.vehicleState.leader['qgx'] = msg.content['leader']['qgx']
-        self.vehicleState.leader['qgy'] = msg.content['leader']['qgy']
-        self.vehicleState.leader['qgz'] = msg.content['leader']['qgz']
+        self.vehicleState.leader['qgx'] = msg.content['leader']['qg'][0]
+        self.vehicleState.leader['qgy'] = msg.content['leader']['qg'][1]
+        self.vehicleState.leader['qgz'] = msg.content['leader']['qg'][2]
 	self.vehicleState.leader['roll'] = msg.content['leader']['roll']
 	self.vehicleState.leader['pitch'] = msg.content['leader']['pitch']
 	self.vehicleState.leader['yaw'] = msg.content['leader']['yaw']
@@ -340,12 +346,15 @@ class Controller(threading.Thread):
         self.vehicleState.leader['omegaY_dot'] = msg.content['leader']['omega_dot'][1]
         self.vehicleState.leader['omegaZ_dot'] = msg.content['leader']['omega_dot'][2]
 	#print(self.vehicleState.leader['omegaZ_dot'])
-	self.vehicleState.leader['pgx'] = msg.content['leader']['pgx']
-	self.vehicleState.leader['pgy'] = msg.content['leader']['pgy']
-	self.vehicleState.leader['pgz'] = msg.content['leader']['pgz']
-        self.vehicleState.leader['ugx'] = msg.content['leader']['ugx']
-        self.vehicleState.leader['ugy'] = msg.content['leader']['ugy']
-        self.vehicleState.leader['ugz'] = msg.content['leader']['ugz']
+	self.vehicleState.leader['pgx'] = msg.content['leader']['pg'][0]
+	self.vehicleState.leader['pgy'] = msg.content['leader']['pg'][1]
+	self.vehicleState.leader['pgz'] = msg.content['leader']['pg'][2]
+        self.vehicleState.leader['ugx'] = msg.content['leader']['ug'][0]
+        self.vehicleState.leader['ugy'] = msg.content['leader']['ug'][1]
+        self.vehicleState.leader['ugz'] = msg.content['leader']['ug'][2]
+	self.vehicleState.leader['lat'] = msg.content['leader']['lat']
+	self.vehicleState.leader['lon'] = msg.content['leader']['lon']
+	#print(self.vehicle.attitude)
 
         
     def pushStateToTxQueue(self):
@@ -374,8 +383,8 @@ class Controller(threading.Thread):
     def setInitialPos(self):
         initPosSet = False
         #print(self.vehicleState.position['z'])
-        if(self.vehicleState.position['z']): #and self.vehicleState.position['z']<-0.115):
-            self.vehicleState.initPos = self.vehicleState.position
+        if(self.vehicleState.position['lat']): #and self.vehicleState.position['z']<-0.115):
+            self.vehicleState.initPos = copy.copy(self.vehicleState.position)
             initPosSet = True
         return initPosSet
 
@@ -416,22 +425,24 @@ class Controller(threading.Thread):
 
     def getHoverData(self):
         self.vehicleState.parameters.config['hoverVel'] = True
-        self.vehicleState.hover = self.vehicleState.position
+        self.vehicleState.hover = copy.copy(self.vehicleState.position)
         self.vehicleState.leader['pgx'] = 0
         self.vehicleState.leader['pgy'] = 0
         self.vehicleState.leader['pgz'] = 0
+	print(self.vehicleState.hover)
 
     def computeControl(self):
 	ID = self.vehicleState.ID
         gains = self.vehicleState.parameters.gains
         Ts = self.vehicleState.parameters.Ts
-        qi = np.matrix([[self.vehicleState.position['x']],[self.vehicleState.position['y']],[self.vehicleState.position['z']]])
+        qi = np.matrix([[self.vehicleState.position['lat']],[self.vehicleState.position['lon']],[self.vehicleState.position['z']]])
         pi = np.matrix([[self.vehicleState.velocity['vx']],[self.vehicleState.velocity['vy']],[self.vehicleState.velocity['vz']]])
 	att_rate = self.agentRotate()
         # Compute the leader stuff
-	qg =  np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[self.vehicleState.leader['qgz']]])
+	qg =  np.matrix([[self.vehicleState.leader['lat']],[self.vehicleState.leader['lon']],[self.vehicleState.leader['qgz']]])
         pg =  np.matrix([[self.vehicleState.leader['pgx']],[self.vehicleState.leader['pgy']],[self.vehicleState.leader['pgz']]])
 	ug =  np.matrix([[self.vehicleState.leader['ugx']],[self.vehicleState.leader['ugy']],[self.vehicleState.leader['ugz']]])
+	qg_prime = np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[0.0]])
 	#print((qg,pg))
 	#pg = self.computeLeaderVelocity(qg)
 	Rg,Omega,Omega_dot = self.computeRotationSequence()
@@ -439,7 +450,11 @@ class Controller(threading.Thread):
 	Rg_dot = np.dot(Rg_IB,Omega)
 	Rg_ddot = np.dot(Rg_dot,Omega) + np.dot(Rg_IB,Omega_dot)
 	# Compute the relative position of the leader and the agent
-	dq = qg - qi #+ np.dot(Rg_IB,self.vehicleState.R2T[:,ID-1])
+	dq = self.getRelPos(qi,qg) #+ np.dot(Rg_IB,self.vehicleState.R2T[:,ID-1])
+	if (self.vehicleState.flightSeq == 5):
+		dq = dq + qg_prime
+	self.vehicleState.leader['dx'] = dq[0,0]
+	self.vehicleState.leader['dy'] = dq[1,0]
 	#print(np.dot(Rg,self.vehicleState.R2T[:,ID-1]))
 	#print(self.vehicleState.leader['omegaY'])
         intPrep = np.dot(self.vehicleState.parameters.Ts,dq)
@@ -451,7 +466,9 @@ class Controller(threading.Thread):
         accPosError = self.antiWindupVec(qg,np.matrix([[-10],[-10],[-10]]),np.matrix([[10],[10],[10]]),accPosPrev,intPrep)
         # Compute the control (note the negative feedback gives us the following deltas)
         dp = pg - pi #+ np.dot(Rg_dot,self.vehicleState.R2T[:,ID-1])
-        uk = ug + np.dot(kp,dq) + np.dot(kd,dp) + np.dot(ki,accPosError)
+	temp_dq = self.controlFunction(dq)
+	temp_dp = self.controlFunction(dp)
+        uk = ug + np.dot(kp,temp_dq) + np.dot(kd,temp_dp) + np.dot(ki,accPosError)
 	# Add the collision avoidance term
 	#avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
 	#uk = np.dot(scale,uk) + avoid
@@ -520,12 +537,29 @@ class Controller(threading.Thread):
 		    dij = (self.vehicleState.R2T[:,ID-1] - self.vehicleState.R2T[:,i-1])
 		    dqj = qj - qi + np.dot(Rg_IB,dij)
 		    dpj = pj - pi + np.dot(Rg_dot,dij)
-		    interAgent = interAgent + np.dot(kAlpha,dqj) + np.dot(kBeta,dpj)
+		    #####################
+		    #! Use this for linear control
+		    #interAgent = interAgent + np.dot(kAlpha,dqj) + np.dot(kBeta,dpj)
+		    #####################
+		    #! Use this for nonlinear control
+		    temp_dqj = self.controlFunction(dqj)
+		    temp_dpj = self.controlFunction(dpj)
+		    print(temp_dqj)
+		    interAgent = interAgent + np.dot(kAlpha,temp_dqj) + np.dot(kBeta,dpj)
+		    ####################
 	### Compute the leader control ###
 	dia = self.vehicleState.R2T[:,ID-1]
 	dqg = qg - qi + np.dot(Rg_IB,dia)
 	dpg = pg - pi + np.dot(Rg_dot,dia)
-	leader = np.dot(kGamma,dqg) + np.dot(kEta,dpg)
+	################################
+	#! Use this for linear control
+	#leader = np.dot(kGamma,dqg) + np.dot(kEta,dpg)
+	################################
+	#! Use this for nonlinear control
+	temp_dqg = self.controlFunction(dqg)
+	temp_dpg = self.controlFunction(dpg)
+	#print(temp_dqg)
+	leader = np.dot(kGamma,temp_dqg) + np.dot(kEta,temp_dpg)
 	### Compute desired yaw angle ###
 	rel_pos = qi - qg
 	dig = np.dot(Rg_IB,-dia)
@@ -605,12 +639,12 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['thrust'] = config['quadMass']*(config['grav'] - uk[2,0] + kw*(pi[2,0] - pk[2,0]) + intGain*self.vehicleState.accumulator['intZVelError'])/(np.cos(self.vehicleState.attitude['roll'])*np.cos(self.vehicleState.attitude['pitch']))
         self.vehicleState.controlState['pitch'] = np.arctan(((uk[0,0] - ku*(pi[0,0] - pk[0,0]))*np.cos(self.vehicleState.attitude['yaw']) + (uk[1,0] - kv*(pi[1,0] - pk[1,0]))*np.sin(self.vehicleState.attitude['yaw']))/(-config['grav'] + uk[2,0] - kw*(pi[2,0] - pk[2,0]) - intGain*self.vehicleState.accumulator['intZVelError']))
         self.vehicleState.controlState['roll'] = np.arctan(((uk[0,0] - ku*(pi[0,0] - pk[0,0]))*np.cos(self.vehicleState.controlState['pitch'])*np.sin(self.vehicleState.attitude['yaw']) - (uk[1,0] - kv*(pi[1,0] - pk[1,0]))*np.cos(self.vehicleState.controlState['pitch'])*np.cos(self.vehicleState.attitude['yaw']))/(-config['grav'] + uk[2,0] - kw*(pi[2,0] - pk[2,0]) - intGain*self.vehicleState.accumulator['intZVelError']))
-        print(rp_command)
-	print((self.vehicleState.controlState['pitch'],self.vehicleState.controlState['roll']))
+        #print(rp_command)
+	#print((self.vehicleState.controlState['pitch'],self.vehicleState.controlState['roll']))
 	#print(thrust)
 	#print(self.vehicleState.controlState['thrust'])
 	#dPsi = self.wrapToPi((self.vehicleState.leader['psi_d'] - self.vehicleState.attitude['yaw']))
-	dPsi =  self.wrapToPi(0.0 - self.vehicleState.attitude['yaw'])
+	dPsi =  self.wrapToPi(1.57 - self.vehicleState.attitude['yaw'])
 	self.vehicleState.controlState['yaw_rate'] = gains['yawP']*dPsi
 	self.scaleAndSendControl()
 
@@ -619,8 +653,8 @@ class Controller(threading.Thread):
         y = self.vehicleState.controlState['thrust']
         x = self.vehicle.battery.voltage
         #x = 1
-        ROLL = 1500 + (500/config['rollLimit'])*self.vehicleState.controlState['lin_roll']
-        PITCH = 1500 + (500/config['pitchLimit'])*self.vehicleState.controlState['lin_pitch']
+        ROLL = 1500 + (500/config['rollLimit'])*self.vehicleState.controlState['roll']
+        PITCH = 1500 + (500/config['pitchLimit'])*self.vehicleState.controlState['pitch']
         THROTTLE = 1000*(1.0 + (y - 4.869)/(0.2067*(x*x - 23.71)))
         YAW = 1500 + (500/config['yawLimit'])*self.vehicleState.controlState['yaw_rate']
 	#print(YAW)
@@ -629,8 +663,38 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['pitch_PWM'] = self.saturate(PITCH,1000,2000)
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
-        self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
+	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
+	if( True):
+		self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
+		#print('hello')
+        	#self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
         
+
+    def controlFunction(self,delta):
+	#! Linear Control
+	#val = delta
+	
+	#! Normalized Dynamics (3-Dims arecoupled) ---> output vector has magnitude 1
+	#scale = 1.0
+	#num = delta
+	#temp1 = LA.norm(delta) ** 2
+	#den = np.sqrt(scale + temp1)
+	#val = num / den
+	
+	#! Normalized Dynamics ---> Magnitude of each direction approaches 1
+	scale = 1.0
+	lin_prop = 0.25
+	num = delta
+	temp1 = np.power(delta,2)
+	den = np.sqrt(scale + lin_prop*temp1)
+	val = num / den
+
+	#! Hyperbolic Tangent ---> Magnitude of each direction approaches 1
+	#val = np.empty(3)
+	#val[0] = m.tanh(delta[0])
+	#val[1] = m.tanh(delta[1])
+	#val[2] = m.tanh(delta[2])
+	return val
 
     def computeMiddleLoopControl(self,config,gains,uk,pk,pi):
 	pi_prime = np.matrix([[0.0],[0.0]])
@@ -759,3 +823,52 @@ class Controller(threading.Thread):
 	if (value == 0 and positiveInput):
 	    value = 2*m.pi
 	return value
+
+    # The getRelPos function gives the relative position of agent 2 relative to agent 1 using GPS coordinates
+    # This function assumes the earth is flat over short diatnces
+    # Accuracy of the this function gets worse as we move closer to the north and south poles
+    # (+ dx) = agent 2 is north of agent 1 and (- dx) = agent 2 is south of agent 1
+    # (+ dy) = agent 2 is east of agent 1 and (- dy) = agent 2 is west of agent 1
+    # Particularly useful for NED coordinate frame
+    def getRelPos(self,pos1,pos2): #returns the x y delta position of p2-p1
+	c = 40074784 # from https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
+#	print pos1
+#	print pos2
+#	print pos2[0,0]
+#	print pos2[0,1]
+	dy = (pos2[1,0]-pos1[1,0]) * c * m.cos(m.radians( (pos1[0,0]+pos2[0,0])/ 2))/360
+#	print dx
+	dx = (pos2[0,0]-pos1[0,0]) * c /360
+#	dz = pos2['alt']-pas1['alt']
+	dz = pos2[2,0] - pos1[2,0]
+	return np.matrix([[dx], [dy],[dz]])
+
+
+
+    # Velocity commands with respect to home location directionally
+    # Be sure tp set up the home location and know your bearings; update the table below before you fly
+    # velocity_x > 0 => fly North
+    # velocity_x < 0 => fly South
+    # velocity_y > 0 => fly East
+    # velocity_y < 0 => fly West
+    # velocity_z < 0 => ascend
+    # velocity_z > 0 => descend
+    ###
+    def send_ned_velocity(self,velocity_x, velocity_y, velocity_z, duration):
+        #    """
+        #    Move vehicle in direction based on specified velocity vectors.
+        #    """
+        msg = self.vehicle.message_factory.set_position_target_local_ned_encode( #msg = vehicle.message_factory.set_position_target_global_int_encode(
+            0,       # time_boot_ms (not used)
+            0, 0,    # target system, target component
+            mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+            0b0000111111000111, # type_mask (only speeds enabled)
+            0, 0, 0, # x, y, z positions (not used)
+            velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
+            0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+            0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
+        # send command to vehicle on 1 Hz cycle
+        self.vehicle.send_mavlink(msg)
+        #for x in range(0,duration):
+            #self.vehicle.send_mavlink(msg)
+            #time.sleep(self.rigidBodyState.parameters.Ts)

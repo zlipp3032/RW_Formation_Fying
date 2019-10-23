@@ -15,18 +15,20 @@ from datetime import datetime
 
 
 #get enviromental variables
-AdHocIP = '192.168.2.1'
+#AdHocIP = '192.168.2.3'
 peerReadPort = 5001
 bufferlength = 1000
-myAddr = (AdHocIP, peerReadPort)
+#myAddr = (AdHocIP, peerReadPort)
 logPath = '/home/pi/Desktop/Data/'
 broadcastIP= '192.168.2.255'
 transmitAddress = (broadcastIP,peerReadPort)
-ThisVehicle = 1
+#ThisVehicle = 1
 #vehicle = 1
 
 defaultParams = defaultConfig.getParams()
-
+AdHocIP = defaultParams.IP
+ThisVehicle = defaultParams.ID
+myAddr = (AdHocIP, peerReadPort)
 
 #create message queues
 loggingQueue = multiprocessing.Queue()

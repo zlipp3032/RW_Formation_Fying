@@ -4,29 +4,29 @@ import numpy as np
 from collections import OrderedDict
 
 Timeout = recordtype('Timeout',['localTimeoutTime','GCSLastRx',('peerLastRx',{})],default = None) 
-Command = recordtype('Command',['Roll','Pitch','Throttle','Yaw',
-                                'ux','uy','uz','vel_est_x','vel_est_y','vel_est_z',
-                                    ('accVelZError',0),('AR',0),('VC',0),('GT',0),
-                                    ('FC',0),('accPosXError',0),('accPosYError',0),
-                                    ('accPosZError',0)],default = None)
+#Command = recordtype('Command',['Roll','Pitch','Throttle','Yaw',
+#                                'ux','uy','uz','vel_est_x','vel_est_y','vel_est_z',
+#                                    ('accVelZError',0),('AR',0),('VC',0),('GT',0),
+#                                    ('FC',0),('accPosXError',0),('accPosYError',0),
+#                                    ('accPosZError',0)],default = None)
 
-PreviousState = recordtype('PreviousState',[('velPrev_x',0),
-                                            ('velPrev_y',0),('velPrev_z',0),('accPrev_x',0),
-                                                ('accPrev_y',0),('accPrev_z',0)], default = None)
+#PreviousState = recordtype('PreviousState',[('velPrev_x',0),
+#                                            ('velPrev_y',0),('velPrev_z',0),('accPrev_x',0),
+#                                                ('accPrev_y',0),('accPrev_z',0)], default = None)
 
-Position = recordtype('Position',['x','y','z'], default=None)
-Velocity = recordtype('Velocity',[('vx',0),('vy',0),('vz',0)], default = None)
+#Position = recordtype('Position',['x','y','z'], default=None)
+#Velocity = recordtype('Velocity',[('vx',0),('vy',0),('vz',0)], default = None)
 
 
 #ComputeControl = recordtype('ComputerControl',[('ux',0),('uy'),('uz',0)], default = None)
 
-Flocking = recordtype('Flocking',['qgx','qgy','qgz',('pgx',0),('pgy',0),('pgz',0)], default = None)
-Leader = recordtype('Leader',['qgx','qgy','qgz','pgx','pgy','pgz',('flocking',Flocking())], default = None)
+#Flocking = recordtype('Flocking',['qgx','qgy','qgz',('pgx',0),('pgy',0),('pgz',0)], default = None)
+#Leader = recordtype('Leader',['qgx','qgy','qgz','pgx','pgy','pgz',('flocking',Flocking())], default = None)
 
-Attitude = recordtype('Attitude',[('roll',0),('pitch',0),('yaw',0)], default = None)
-AttThrust = recordtype('AttThrust',['roll','pitch','throttle','yaw'], default = None)
+#Attitude = recordtype('Attitude',[('roll',0),('pitch',0),('yaw',0)], default = None)
+#AttThrust = recordtype('AttThrust',['roll','pitch','throttle','yaw'], default = None)
 
-InitialPosition = recordtype('InitialPosition',['xo','yo','zo'], default = None)
+#InitialPosition = recordtype('InitialPosition',['xo','yo','zo'], default = None)
 
 #Parameter = recordtype('Parameter',['Ts','peerTimeout','GPSTimeout',
 #                                    'expectedMAVs','isComplete','TargetAltitude','kpx','kdx',
@@ -35,9 +35,7 @@ InitialPosition = recordtype('InitialPosition',['xo','yo','zo'], default = None)
 #                                        'throttleLimit','stoppingDistance','desiredSpeed','isTakeoff',
 #                                        'intGain','InitPos','isLanding','isHovering','isFlocking','alpha1',
 #                                        'alpha2','beta','gamma1','gamma2','gamma3','gamma4','desiredDistance',
-#                                        'kix','kiy','kiz'], default = None)
-
-Parameter = recordtype('Parameter',['Ts','receivedTime','expectedMAVs','ID','isComplete','GPSTimeout','gains','config','txStateType'], default = None)
+Parameter = recordtype('Parameter',['IP','Ts','receivedTime','expectedMAVs','ID','isComplete','GPSTimeout','gains','config','txStateType'], default = None)
 
 #RigidBodyState = recordtype('RigidBodyState', [('startTime', None),'ID',
 #                                                   'batt','time','channels',('test',AttThrust()),
@@ -48,8 +46,8 @@ Parameter = recordtype('Parameter',['Ts','receivedTime','expectedMAVs','ID','isC
 #                                                   ('leader',Leader()),('previousState',PreviousState()),
 #                                                   'flightSeq'], default = None)
 
-MessageState = recordtype('MessageState',['ID',('position',Position()),('velocity',Velocity()),
-                                          ('attitude',Attitude())],default = None)
+#MessageState = recordtype('MessageState',['ID',('position',Position()),('velocity',Velocity()),
+#                                          ('attitude',Attitude())],default = None)
 
 Message = recordtype('Message', 'type,sendTime,content', default = None)
 
@@ -57,7 +55,7 @@ class BasicVehicleState(object):
     def __init__(self,other=None):
         self.ID = None
         self.timestamp = None
-        self.position = {'x': None, 'y': None, 'z': None}
+        self.position = {'x': None, 'y': None, 'z': None, 'lat': None, 'lon': None, 'alt': None, 'dx': None, 'dy': None}
         self.velocity =  {'vx': 0.0, 'vy': 0.0, 'vz': 0.0}
         self.isPropagated = False
         self.counter = 0
@@ -80,6 +78,9 @@ class BasicVehicleState(object):
         headers += ['xPos','yPos','zPos']
         values += [self.position['x'], self.position['y'], self.position['z']]
 
+	headers += ['lat','lon','alt','dx','dy']
+	values += [self.position['lat'],self.position['lon'],self.position['alt'],self.position['dx'],self.position['dy']]
+
         headers += ['xVel', 'yVel', 'zVel']
         values += [self.velocity['vx'], self.velocity['vy'], self.velocity['vz']]
 
@@ -96,9 +97,10 @@ class FullVehicleState(BasicVehicleState):
                            'qgx_prev': None, 'qgy_prev': None, 'qgz_prev': None, 'pgx_prev': 0.0, 'pgy_prev': 0.0, 'pgz_prev': 0.0,
 			    'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0,
 			    'omegaX': 0.0, 'omegaY': 0.0, 'omegaZ': 0.0, 'omegaX_dot': 0.0, 'omegaY_dot': 0.0, 'omegaZ_dot': 0.0,
-			    'roll_rate_prev': 0.0, 'pitch_rate_prev': 0.0, 'yaw_rate_prev': 0.0, 'psi_d': 0.0}
-        self.attitude = {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0, 'roll_rate': 0.0, 'pitch_rate': 0.0, 'yaw_rate': 0.0}
-        self.initPos = {'x': None, 'y': None, 'z': None}
+			    'roll_rate_prev': 0.0, 'pitch_rate_prev': 0.0, 'yaw_rate_prev': 0.0, 'psi_d': 0.0,
+			    'lat': None,'lon': None,'alt': None,'dx': None, 'dy': None}
+        self.attitude = {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0, 'roll_rate': 0.0, 'pitch_rate': 0.0, 'yaw_rate': 0.0, 'time': None, 'rel_time': 0.0, 'prev_time': 0.0}
+        self.initPos = {'x': None, 'y': None, 'z': None, 'lat': None, 'lon': None, 'alt': None}
         self.accumulator = {'intXPosError': 0.0, 'intYPosError': 0.0, 'intZPosError': 0.0, 'intZVelError': 0.0}
         self.controlState = {'vx_des': 0.0, 'vy_des': 0.0, 'vz_des': 0.0, 'ux_des': 0.0, 'uy_des': 0.0, 'uz_des': 0.0,
                                  'thrust': 0.0, 'roll': 0.0, 'pitch': 0.0, 'yaw_rate': 0.0, 'lin_thrust': 0.0, 'lin_roll': 0.0, 'lin_pitch': 0.0,
@@ -107,8 +109,8 @@ class FullVehicleState(BasicVehicleState):
 	self.channels = {'roll': None, 'pitch': None, 'throttle': None, 'yaw': None}
 	self.avoid = {'ux': 0.0, 'uy': 0.0, 'uz':0.0}
 	self.flightSeq = 0
-        self.hover = {'x': None, 'y': None, 'z': None}
-	self.R2T = np.matrix([[1.5, -1.5, 0.0],[0.43, 0.43, -1.2],[-0.2, -0.2, -0.2]])
+        self.hover = {'x': None, 'y': None, 'z': None, 'lat': None,'lon': None,'alt': None}
+	self.R2T = np.matrix([[0.8, -0.8, 0.0],[0.43, 0.43, -0.9],[-0.2, -0.2, -0.2]])
         #self.isFlocking = False
         
     def getCSVLists(self):
@@ -116,11 +118,14 @@ class FullVehicleState(BasicVehicleState):
         headers = base.keys()
         values = base.values()
 
-        headers += ['roll', 'pitch', 'yaw']
-        values += [self.attitude['roll'], self.attitude['pitch'], self.attitude['yaw']]
+        headers += ['roll', 'pitch', 'yaw','att_time','att_rel_time']
+        values += [self.attitude['roll'], self.attitude['pitch'], self.attitude['yaw'],self.attitude['time'],self.attitude['rel_time']]
 
 	headers += ['roll_rate','pitch_rate','yaw_rate']
 	values += [self.attitude['roll_rate'],self.attitude['pitch_rate'],self.attitude['yaw_rate']]
+
+	headers += ['lead_lat','lead_lon','lead_alt','lead_dx','lead_dy']
+	values += [self.leader['lat'],self.leader['lon'],self.leader['alt'],self.leader['dx'],self.leader['dy']]
 
         headers += ['leadXPos', 'leadYPos', 'leadZPos']
         values += [self.leader['qgx'], self.leader['qgy'], self.leader['qgz']]
@@ -143,8 +148,8 @@ class FullVehicleState(BasicVehicleState):
         headers += ['flightSequence']
         values += [self.flightSeq]
 
-        headers += ['xhover', 'yhover', 'zhover']
-        values += [self.hover['x'], self.hover['y'],self.hover['z']]
+        headers += ['xhover', 'yhover', 'zhover','lat_hover','lon_hover','alt_hover']
+        values += [self.hover['x'], self.hover['y'],self.hover['z'],self.hover['lat'],self.hover['lon'],self.hover['alt']]
 
         headers += ['intXPosError','intYPosError','intZPosError','intZVelError']
         values += [self.accumulator['intXPosError'], self.accumulator['intYPosError'],self.accumulator['intZPosError'],self.accumulator['intZVelError']]
