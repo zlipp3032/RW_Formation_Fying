@@ -309,10 +309,10 @@ class Controller(threading.Thread):
     def getVehicleState(self):
 	self.vehicleState.position['lat'] = self.vehicle.location.global_relative_frame.lat
 	self.vehicleState.position['lon'] = self.vehicle.location.global_relative_frame.lon
-	self.vehicleState.position['z'] = -self.vehicle.location.global_relative_frame.alt
+	self.vehicleState.position['z'] = -self.vehicle.location.global_relative_frame.alt # This needs to be verified that up is negative
 	self.vehicleState.velocity['vx'] = self.vehicle.velocity[0]
 	self.vehicleState.velocity['vy'] = self.vehicle.velocity[1]
-	self.vehicleState.velocity['vz'] = self.vehicle.velocity[2]
+	self.vehicleState.velocity['vz'] = -self.vehicle.velocity[2] # This needs to be verified that up is negative
 	self.vehicleState.attitude['yaw'] = self.vehicle.attitude.yaw
 	self.vehicleState.attitude['roll'] = self.vehicle.attitude.roll
 	self.vehicleState.attitude['pitch'] = self.vehicle.attitude.pitch
