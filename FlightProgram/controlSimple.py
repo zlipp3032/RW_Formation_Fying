@@ -451,8 +451,8 @@ class Controller(threading.Thread):
 	Rg_ddot = np.dot(Rg_dot,Omega) + np.dot(Rg_IB,Omega_dot)
 	# Compute the relative position of the leader and the agent
 	dq = self.getRelPos(qi,qg) #+ np.dot(Rg_IB,self.vehicleState.R2T[:,ID-1])
-	if (self.vehicleState.flightSeq == 5):
-		dq = dq + qg_prime
+	#if (self.vehicleState.flightSeq == 5):
+	#	dq = dq + qg_prime
 	self.vehicleState.leader['dx'] = dq[0,0]
 	self.vehicleState.leader['dy'] = dq[1,0]
 	#print(np.dot(Rg,self.vehicleState.R2T[:,ID-1]))
@@ -489,11 +489,11 @@ class Controller(threading.Thread):
 	Ts = self.vehicleState.parameters.Ts
 	ID = self.vehicleState.ID
 	MAVs = self.vehicleState.parameters.expectedMAVs + 1
-	qi = np.matrix([[self.vehicleState.position['x']],[self.vehicleState.position['y']],[self.vehicleState.position['z']]])
+	qi = np.matrix([[self.vehicleState.position['lat']],[self.vehicleState.position['lon']],[self.vehicleState.position['z']]])
         pi = np.matrix([[self.vehicleState.velocity['vx']],[self.vehicleState.velocity['vy']],[self.vehicleState.velocity['vz']]])
 	att_rate = self.agentRotate()
 	### Leader Stuff ###
-	qg =  np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[self.vehicleState.leader['qgz']]])
+	qg =  np.matrix([[self.vehicleState.leader['lat']],[self.vehicleState.leader['lon']],[self.vehicleState.leader['qgz']]])
         pg =  np.matrix([[self.vehicleState.leader['pgx']],[self.vehicleState.leader['pgy']],[self.vehicleState.leader['pgz']]])
         ug =  np.matrix([[self.vehicleState.leader['ugx']],[self.vehicleState.leader['ugy']],[self.vehicleState.leader['ugz']]])
         #pg = self.computeLeaderVelocity(qg)
@@ -530,12 +530,12 @@ class Controller(threading.Thread):
 		    #print(kBeta,i)
 		    j_stamp = self.stateVehicles[i].timestamp
 		    #print(j_stamp)
-		    qj = np.matrix([[self.stateVehicles[i].position['x']],[self.stateVehicles[i].position['y']],[self.stateVehicles[i].position['z']]])
+		    qj = np.matrix([[self.stateVehicles[i].position['lat']],[self.stateVehicles[i].position['lon']],[self.stateVehicles[i].position['z']]])
 		    pj = np.matrix([[self.stateVehicles[i].velocity['vx']],[self.stateVehicles[i].velocity['vy']],[self.stateVehicles[i].velocity['vz']]])
 		    #qj_prime = qj + (j_stamp - self.vehicleState.timestamp)*pj
 		    #qi,qj = self.vectorIntegratePosition(qi,pi,qj,pj,i)
 		    dij = (self.vehicleState.R2T[:,ID-1] - self.vehicleState.R2T[:,i-1])
-		    dqj = qj - qi + np.dot(Rg_IB,dij)
+		    dqj = self.getRelPos(qi,qj) + np.dot(Rg_IB,dij)
 		    dpj = pj - pi + np.dot(Rg_dot,dij)
 		    #####################
 		    #! Use this for linear control
@@ -544,13 +544,17 @@ class Controller(threading.Thread):
 		    #! Use this for nonlinear control
 		    temp_dqj = self.controlFunction(dqj)
 		    temp_dpj = self.controlFunction(dpj)
-		    print(temp_dqj)
+		    #print(temp_dqj)
 		    interAgent = interAgent + np.dot(kAlpha,temp_dqj) + np.dot(kBeta,dpj)
+		    self.stateVehicles[i].position['dx'] = dqj[0,0]
+		    self.stateVehicles[i].position['dy'] = dqj[1,0]
 		    ####################
 	### Compute the leader control ###
 	dia = self.vehicleState.R2T[:,ID-1]
-	dqg = qg - qi + np.dot(Rg_IB,dia)
+	dqg = self.getRelPos(qi,qg) + np.dot(Rg_IB,dia)
 	dpg = pg - pi + np.dot(Rg_dot,dia)
+	self.vehicleState.leader['dx'] = dqg[0,0]
+	self.vehicleState.leader['dy'] = dqg[1,0]
 	################################
 	#! Use this for linear control
 	#leader = np.dot(kGamma,dqg) + np.dot(kEta,dpg)
@@ -561,19 +565,16 @@ class Controller(threading.Thread):
 	#print(temp_dqg)
 	leader = np.dot(kGamma,temp_dqg) + np.dot(kEta,temp_dpg)
 	### Compute desired yaw angle ###
-	rel_pos = qi - qg
+	#rel_pos = self.getRelPos(qg,qi) # ===> dqi = qi - qg
 	dig = np.dot(Rg_IB,-dia)
 	self.vehicleState.leader['psi_d'] = m.atan2(dig[1,0],dig[0,0])
 	### Compute the formation control ###
 	uk = ug + np.dot(Rg_ddot,dia) + interAgent + leader
 	### Add the collision avoidance term ###
-	avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
-	uk = np.dot(scale,uk) + avoid
+	#avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
+	#uk = np.dot(scale,uk) + avoid
 	### Esitmate the desired velocity ###
 	pkp = np.matrix([[self.vehicleState.controlState['vx_des']],[self.vehicleState.controlState['vy_des']],[self.vehicleState.controlState['vz_des']]])
-        #ukp = np.matrix([[self.vehicleState.controlState['ux_des']],[self.vehicleState.controlState['uy_des']],[self.vehicleState.controlState['uz_des']]])
-        #temp1 = (1.0 - Ts*gains['velGain'])
-        #temp2 = Ts*temp1
         pk = pkp + np.dot(Ts,uk)
         self.updateControlState(pi,pk,uk,accPosError,Ts)
 
@@ -668,19 +669,19 @@ class Controller(threading.Thread):
 		self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
 		#print('hello')
         	#self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
-        
+
 
     def controlFunction(self,delta):
 	#! Linear Control
 	#val = delta
-	
+
 	#! Normalized Dynamics (3-Dims arecoupled) ---> output vector has magnitude 1
 	#scale = 1.0
 	#num = delta
 	#temp1 = LA.norm(delta) ** 2
 	#den = np.sqrt(scale + temp1)
 	#val = num / den
-	
+
 	#! Normalized Dynamics ---> Magnitude of each direction approaches 1
 	scale = 1.0
 	lin_prop = 0.25

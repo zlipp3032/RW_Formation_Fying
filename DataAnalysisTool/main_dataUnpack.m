@@ -12,19 +12,13 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
-path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Data';
-% test = '/Optimize_Gains/Optimize_v02/';
-% test = '/Transmit/Transmit_5/';
-% test = '/CNET/C_net_prelim_4/';
-% test = '/LinearMiddleLoop/test1/';
-% test = '/CDC/Three_Agent_CDC_2_gam/';
-% test = '/ACC/ACC_v01/';
-test = '/ACC/ACC_prelim_v04/';
+path = '/home/zsl/Desktop/Data/';
+test = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_07__04_10_19_log_v1';
+data(1).file = '2019_09_07__03_35_33_log_v1';
 data(2).file = '2019_09_07__03_39_41_log_v2';
 data(3).file = '2019_09_06__20_02_54_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,7 +31,7 @@ data(3).file = '2019_09_06__20_02_54_log_v3';
 % Compute the desired distance in the leader frame
 % target_vectors = [1.5 0.43 -0.2; -1.5 0.43 -0.2; 0.0 -1.2 -0.2]; 
 % target_vectors = [0.75 0.43 -0.2; -0.75 0.43 -0.2; 0.0 -0.87 -0.2]; 
-target_vectors = [0.9 0.43 -0.2; -0.9 0.43 -0.2; 0.0 -0.9 -0.2];
+target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

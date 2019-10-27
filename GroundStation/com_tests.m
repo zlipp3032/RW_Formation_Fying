@@ -9,7 +9,7 @@ close all
 
 Ts = 0.055;
 % leaderCoord = [38.052326, -84.294367]; % GPS (lat,lon) coordinates at LMAC for origin of leader trjactory
-leaderCoord = [38.006309500000000, -84.405756400000000]; % My room
+leaderCoord = [38.00629580000000, -84.405753700000000]; % My room
 
 
 global hFigure fCom u
@@ -57,9 +57,9 @@ disp('Exit.')
 
 function [qg,pg,ug] = qgfunc(t)
     
-    qg = [sin(t),0.0,-4.0];
-    pg = [cos(t),0.0,0.0];
-    ug = [-sin(t),0.0,0.0];
+    qg = [0.0,0.0,-4.0];
+    pg = [0.0,0.0,0.0];
+    ug = [0.0,0.0,0.0];
     
 
 end
