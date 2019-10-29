@@ -645,7 +645,7 @@ class Controller(threading.Thread):
 	#print(thrust)
 	#print(self.vehicleState.controlState['thrust'])
 	#dPsi = self.wrapToPi((self.vehicleState.leader['psi_d'] - self.vehicleState.attitude['yaw']))
-	dPsi =  self.wrapToPi(1.57 - self.vehicleState.attitude['yaw'])
+	dPsi =  self.wrapToPi(0.0 - self.vehicleState.attitude['yaw'])
 	self.vehicleState.controlState['yaw_rate'] = gains['yawP']*dPsi
 	self.scaleAndSendControl()
 
