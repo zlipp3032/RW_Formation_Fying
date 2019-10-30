@@ -47,21 +47,15 @@ class Controller(threading.Thread):
     def run(self):
         while(not self.stoprequest.is_set()):
             loopStartTime = datetime.now()
-            #while(not self.stoprequest.is_set()):
-            #    try:
-            #        msg = self.receiveQueue.get(False)
-            #        self.parseMessage(msg)
-            #        #print(msg)
-            #    except Queue.Empty:
-            #        break
-	    #self.pushStateToTxQueue()
+	    self.getVehiclestate()
+	    self.pushStateToTxQueue()
 	    while (not self.stoprequest.is_set()):
 		try:
 		    msg = self.receiveQueue.get(False)
 		    self.parseMessage(msg)
 		except Queue.Empty:
 		    break
-	    self.getVehicleState()
+	    #self.getVehicleState()
             # Need to put a GPS conditional here to ensure we have position data
             if(not self.vehicleState.parameters.config['initPos']):
                 self.vehicleState.parameters.config['initPos'] = self.setInitialPos()
@@ -77,6 +71,7 @@ class Controller(threading.Thread):
 	    time.sleep(timeToWait)
 	    #time.sleep(self.vehicleState.parameters.Ts)
         self.stop()
+	#self.releaseControl()
         print "Control Stopped"
 
 
@@ -389,17 +384,26 @@ class Controller(threading.Thread):
         return initPosSet
 
     def checkAbort(self):
-        #if(self.checkTimeouts()):
-        #    self.rigidBodyState.abortReason = "Timeout"
+        if(self.checkTimeouts()):
+            self.vehicleState.abortReason = "Timeout"
         #    self.rigdBodyState.RCLatch = True
         #    self.rigidBodyState.isGPS = False
-        #    self.releaseControl()
-        #    return True
-        #! Check the proper flight mode
-        if(not self.vehicle.mode == 'STABILIZE'):
             self.releaseControl()
             return True
+        #! Check the proper flight mode
+        if(not self.vehicle.mode == 'STABILIZE'):
+	    self.vehicleState.abortReason = "Incorrect Flight Mode"
+            self.releaseControl()
+            return True
+	if(self.vehicle.channels['8'] == 1000)
+	    self.vehicleState.abortReasion = "Pilot Override"
+	    self.releaseControl()
+	    return True
         return False
+
+    def checkTimeouts(self):
+	didTimeout = False
+	return didTimeout
 
     def agentRotate(self):
 	#dAtt = np.matrix([[0.0],[0.0],[0.0]])
