@@ -9,8 +9,8 @@ close all
 
 Ts = 0.055;
 % leaderCoord = [38.052326, -84.294367]; % GPS (lat,lon) coordinates at LMAC for origin of leader trjactory
-leaderCoord = [38.00629580000000, -84.405753700000000]; % My room
-
+% leaderCoord = [38.00629580000000, -84.405753700000000]; % My room
+leaderCoord = [38.0525005, -84.2941595];
 
 global hFigure fCom u
 

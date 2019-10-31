@@ -18,7 +18,7 @@ test = '';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_07__03_35_33_log_v1';
+data(1).file = '2019_09_07__12_51_08_log_v1';
 data(2).file = '2019_09_07__03_39_41_log_v2';
 data(3).file = '2019_09_06__20_02_54_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,7 +41,7 @@ target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define the plot Sequence ---> boolean operator(e.g., true = 1 and false = 0)
 plt_stuff = struct;
-plt_stuff.plot_single = 0;
+plt_stuff.plot_single = 1;
 plt_stuff.plot_double = 0;
 plt_stuff.plot_triple = 0;
 
@@ -104,8 +104,8 @@ end
 disp('Processing Data')
 
 
-[agent,leader_agent,inter_agent] = AnalyzeThreeAgent(data(1),data(2),data(3),target_vectors);
-
+% [agent,leader_agent,inter_agent] = AnalyzeThreeAgent(data(1),data(2),data(3),target_vectors);
+[agent,leader_agent,inter_agent] = AnalyzeThreeAgentOutdoor(data,target_vectors);
 
 % Define a nonlinear function for the outerloop formation control
 % gain_analysis(data,agent,leader_agent,inter_agent);
@@ -122,14 +122,14 @@ disp('Initiate Plotting Sequence')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the index for which you want to plot
 % plt_stuff.plot_index = agent(1).index;
-plt_stuff.plot_index = agent(1).index_form;
-% plt_stuff.plot_index = agent(1).index_virt;
+% plt_stuff.plot_index = agent(1).index_form;
+plt_stuff.plot_index = agent(1).index_virt;
 
 
 if(plt_stuff.plot_single)
    disp('Single agent plots.')
-%    plotPositionAndVelocity(agent,plt_stuff)
-   plotPositionAndVelocity_R2T(agent,plt_stuff)
+   plotPositionAndVelocity(agent,plt_stuff)
+%    plotPositionAndVelocity_R2T(agent,plt_stuff)
    
 end
 
@@ -145,20 +145,85 @@ if(plt_stuff.plot_triple)
 end
 
 
-
-
-
-
-
-
-
 disp('End main.')
 
+%% Extra Plotting sequence
+myPlots(agent,plt_stuff,data)
+
+
+function myPlots(agent,plt_stuff,data)
+    startTime = agent(1).time(plt_stuff.plot_index(1));
+    endTime = agent(1).time(plt_stuff.plot_index(end));
+
+    figure
+    subplot(3,1,1)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_dot_1(1,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_vx_des(plt_stuff.plot_index),'r -.','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{1}^{\rm T} p_i~(\frac{\rm m}{\rm s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+
+    subplot(3,1,2)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_dot_1(2,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_vy_des(plt_stuff.plot_index),'r -.','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{2}^{\rm T} p_i~(\frac{\rm m}{\rm s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_dot_1(3,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_vz_des(plt_stuff.plot_index),'r -.','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{3}^{\rm T} p_i~(\frac{\rm m}{\rm s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    
+    
+
+    figure
+    subplot(3,1,1)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
+    grid on
+    ylabel('$e_{1}^{\rm T} u_i~( \frac{\rm m}{\rm s^2} )$','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlim([startTime, endTime])
+    
+    subplot(3,1,2)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
+    grid on
+    ylabel('$e_{1}^{\rm T} u_i~( \frac{\rm m}{\rm s^2} )$','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlim([startTime, endTime])
+    
+    subplot(3,1,3)
+    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
+    grid on
+    ylabel('$e_{3}^{\rm T} u_i~( \frac{\rm m}{\rm s^2} )$','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlim([startTime, endTime])
+%     output = true;
+
+
+
+
+end
 
 
 
 
 
-% plotSingleAgent_v1(A1,index_v1), plotSingleAgent_v2(A2,index_v2), plotSingleAgent_v3(A3,index_v3)
-% plotTwoAgent(A1,index_v1,agent1_R2T,agent2_R2T,agent1_R2T_dot,agent2_R2T_dot,dist_error1,dist_error2)
-% plotThreeAgent(A1,index1,agent1_R2T,agent2_R2T,agent3_R2T,agent1_R2T_dot,agent2_R2T_dot,agent3_R2T_dot,dist_error1,dist_error2,file_str,fig_path,build_path,ylmt,index_form1)

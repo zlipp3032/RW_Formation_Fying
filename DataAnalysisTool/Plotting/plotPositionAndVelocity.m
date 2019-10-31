@@ -11,7 +11,7 @@ fig1 = figure;
 subplot(3,1,1)
 plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
 hold on
-plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_1(1,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+plot(agent(1).time(plt_stuff.plot_index),agent(1).leader_pos(plt_stuff.plot_index,1),'k --','linewidth',plt_stuff.lval)
 hold off
 ylabel('$e_{1}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
 grid on
@@ -23,7 +23,7 @@ set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
 subplot(3,1,2)
 plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
 hold on
-plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_1(2,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+plot(agent(1).time(plt_stuff.plot_index),agent(1).leader_pos(plt_stuff.plot_index,2),'k --','linewidth',plt_stuff.lval)
 hold off
 ylabel('$e_{2}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
 grid on
@@ -35,7 +35,7 @@ set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
 subplot(3,1,3)
 plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
 hold on
-plot(agent(1).time(plt_stuff.plot_index),agent(1).R2T.R2T_1(3,plt_stuff.plot_index),'k --','linewidth',plt_stuff.lval)
+plot(agent(1).time(plt_stuff.plot_index),agent(1).leader_pos(plt_stuff.plot_index,3),'k --','linewidth',plt_stuff.lval)
 hold off
 xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
 ylabel('$e_{3}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
