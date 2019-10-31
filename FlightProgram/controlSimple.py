@@ -296,7 +296,7 @@ class Controller(threading.Thread):
 	    	self.stateVehicles[ID].counter += 1
 	    	self.stateVehicles[ID].position = msg.content['position']
 	    	self.stateVehicles[ID].velocity = msg.content['velocity']
-	    	self.stateVehicles[ID].timestamp = datetime.now()
+	    	self.stateVehicles[ID].timestamp = msg.sendTime
 	#else:
 	#	self.getVehicleState()
         #print(self.stateVehicles)
@@ -325,6 +325,7 @@ class Controller(threading.Thread):
 
     def updateGlobalStateWithData(self,ID,msg):
         self.vehicleState.flightSeq = msg.content['flightSeq']
+	self.vehicleState.GCS_timestamp = msg.sendTime
         # Update the leader states
         self.vehicleState.leader['qgx'] = msg.content['leader']['qg'][0]
         self.vehicleState.leader['qgy'] = msg.content['leader']['qg'][1]
@@ -405,8 +406,11 @@ class Controller(threading.Thread):
     def checkTimeouts(self):
 	didTimeout = False
 	# GCS Timeout
-	if (False):
-	    print('hello')
+	isGCSTimeout = (datetime.now() - self.vehicleState.GCS_timestamp).total_seconds() >= self.vehicleState.parameters.config['GCS_timeout']
+	if (isGCSTimeout):
+	    #print('hello')
+	    self.vehicle.mode = VehicleMode('ALT_HOLD')
+	    print(self.vehicle.mode)
 	    didTimeout = True
 	return didTimeout
 

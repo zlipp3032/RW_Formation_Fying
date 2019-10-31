@@ -2,6 +2,7 @@ print('Vehicle State')
 from recordtype import recordtype
 import numpy as np
 from collections import OrderedDict
+from datetime import datetime
 
 Timeout = recordtype('Timeout',['localTimeoutTime','GCSLastRx',('peerLastRx',{})],default = None) 
 #Command = recordtype('Command',['Roll','Pitch','Throttle','Yaw',
@@ -94,6 +95,7 @@ class FullVehicleState(BasicVehicleState):
         super(FullVehicleState, self).__init__()
         self.time = 0.00
 	self.abortReason = None
+	self.GCS_timestamp = datetime.now()
         self.leader = {'qgx': None, 'qgy': None, 'qgz': None, 'pgx': 0.0, 'pgy': 0.0, 'pgz': 0.0, 'ugx': 0.0, 'ugy': 0.0, 'ugz': 0.0,
                            'qgx_prev': None, 'qgy_prev': None, 'qgz_prev': None, 'pgx_prev': 0.0, 'pgy_prev': 0.0, 'pgz_prev': 0.0,
 			    'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0,

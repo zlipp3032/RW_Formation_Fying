@@ -48,7 +48,9 @@ def getParams():
                             'isHovering': False,
                             'isFormation': False,
                             'ignoreSelfPackets': True,
-                            'hoverVel': True
+                            'hoverVel': True,
+			    'GCS_timeout': 5, # seconds
+			    'Form_timeout': 4 # seconds
                             }
         
     
