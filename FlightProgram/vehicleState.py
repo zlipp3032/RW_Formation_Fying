@@ -93,6 +93,7 @@ class FullVehicleState(BasicVehicleState):
     def __init__(self):
         super(FullVehicleState, self).__init__()
         self.time = 0.00
+	self.abortReason = None
         self.leader = {'qgx': None, 'qgy': None, 'qgz': None, 'pgx': 0.0, 'pgy': 0.0, 'pgz': 0.0, 'ugx': 0.0, 'ugy': 0.0, 'ugz': 0.0,
                            'qgx_prev': None, 'qgy_prev': None, 'qgz_prev': None, 'pgx_prev': 0.0, 'pgy_prev': 0.0, 'pgz_prev': 0.0,
 			    'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0,
@@ -117,6 +118,9 @@ class FullVehicleState(BasicVehicleState):
         base = super(FullVehicleState,self).getCSVLists()
         headers = base.keys()
         values = base.values()
+
+	headers += ['abortReason']
+	values += [self.abortReason]
 
         headers += ['roll', 'pitch', 'yaw','att_time','att_rel_time']
         values += [self.attitude['roll'], self.attitude['pitch'], self.attitude['yaw'],self.attitude['time'],self.attitude['rel_time']]

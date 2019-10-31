@@ -47,8 +47,8 @@ class Controller(threading.Thread):
     def run(self):
         while(not self.stoprequest.is_set()):
             loopStartTime = datetime.now()
-	    self.getVehiclestate()
-	    self.pushStateToTxQueue()
+	    self.getVehicleState()
+	    #self.pushStateToTxQueue()
 	    while (not self.stoprequest.is_set()):
 		try:
 		    msg = self.receiveQueue.get(False)
@@ -392,17 +392,22 @@ class Controller(threading.Thread):
             return True
         #! Check the proper flight mode
         if(not self.vehicle.mode == 'STABILIZE'):
-	    self.vehicleState.abortReason = "Incorrect Flight Mode"
+	    self.vehicleState.abortReason = "Wrong F.M."
             self.releaseControl()
             return True
-	if(self.vehicle.channels['8'] == 1000)
+	if(self.vehicle.channels['8'] == 1000 or self.vehicle.channels['6'] >= 1400):
 	    self.vehicleState.abortReasion = "Pilot Override"
+	    #self.vehicle.mode == VehicleMode('ALT_HOLD')
 	    self.releaseControl()
 	    return True
         return False
 
     def checkTimeouts(self):
 	didTimeout = False
+	# GCS Timeout
+	if (False):
+	    print('hello')
+	    didTimeout = True
 	return didTimeout
 
     def agentRotate(self):
