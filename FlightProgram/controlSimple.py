@@ -48,7 +48,7 @@ class Controller(threading.Thread):
         while(not self.stoprequest.is_set()):
             loopStartTime = datetime.now()
 	    self.getVehicleState()
-	    #self.pushStateToTxQueue()
+	    self.pushStateToTxQueue()
 	    while (not self.stoprequest.is_set()):
 		try:
 		    msg = self.receiveQueue.get(False)
@@ -358,7 +358,7 @@ class Controller(threading.Thread):
 	self.sendState['velocity'] = self.vehicleState.velocity
 	self.sendState['ID'] = self.vehicleState.ID
 	self.sendState['type'] = 1 # 1 = UAV, 0 = Ground Station
-	self.sendState['timestamp'] = self.vehicleState.timestamp
+	#self.sendState['timestamp'] = self.vehicleState.timestamp
 	#msg = Message()
 	#msg.type = "UAV"
 	#msg.sendTime = datetime.now()
