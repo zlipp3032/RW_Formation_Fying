@@ -56,9 +56,9 @@ try
     leader_agent(1).R2T_pos_error_1 = agent(1).pos_1 - agent(1).R2T.R2T_1';
     leader_agent(1).R2T_vel_error_1 = agent(1).vel_1 - agent(1).R2T.R2T_dot_1';
     try
-        agent(1).pos_2 = [A1.v2_xPos(index1),A1.v2_yPos(index1),A1.v2_zPos(index1)];
+        agent(1).pos_2 = [A1.v2_lat(index1),A1.v2_lon(index1),A1.v2_zPos(index1)];
         agent(1).vel_2 = [A1.v2_xVel(index1),A1.v2_yVel(index1),A1.v2_zVel(index1)];
-        leader_agent(1).pos_error_2 = agent(1).pos_2 - [A1.v1_leadXPos(index1),A1.v1_leadYPos(index1),A1.v1_leadZPos(index1)];
+        leader_agent(1).pos_error_2 = agent(1).pos_2 - [A1.v1_lead_lat(index1),A1.v1_lead_lon(index1),A1.v1_leadZPos(index1)];
         leader_agent(1).vel_error_2 = agent(1).vel_2 - [A1.v1_leadXVel(index1),A1.v1_leadYVel(index1),A1.v1_leadZVel(index1)];
         leader_agent(1).R2T_pos_error_2 = agent(1).pos_2 - agent(1).R2T.R2T_2';
         leader_agent(1).R2T_vel_error_2 = agent(1).vel_2 - agent(1).R2T.R2T_dot_2';
@@ -99,7 +99,7 @@ try
     
         
     % Get positiong velocity and input
-    agent(2).pos_2 = [A2.v2_xPos(index2),A2.v2_yPos(index2),A2.v2_zPos(index2)];
+    agent(2).pos_2 = [data(2).A.v2_lat(index2),data(2).A.v2_lon(index2),data(2).A.v2_zPos(index2)];
     agent(2).vel_2 = [A2.v2_xVel(index2),A2.v2_yVel(index2),A2.v2_zVel(index2)];
     
     % Smooth the agent velocity and estimate the actual acceleration using
@@ -116,6 +116,11 @@ try
     % Set the battery parameters
     agent(2).battery = A2.v2_battVolt;
     
+    % Get the leader trajectory
+    agent(2).leader_pos = [A2.v2_lead_lat(index2),A2.v2_lead_lon(index2),A2.v2_leadZPos(index2)];
+    agent(2).leader_vel = [data(2).A.v2_leadXVel(index2),data(2).A.v2_leadYVel(index2),data(2).A.v2_leadZVel(index2)];
+    
+    
     % Get the R2T Values
     [agent(2).R2T,~] = computeR2T(index2,A2,target_vectors);
     
@@ -125,9 +130,9 @@ try
     leader_agent(2).R2T_pos_error_2 = agent(2).pos_2 - agent(2).R2T.R2T_2';
     leader_agent(2).R2T_vel_error_2 = agent(2).vel_2 - agent(2).R2T.R2T_dot_2';
     try
-        agent(2).pos_1 = [A2.v1_xPos(index2),A2.v1_yPos(index2),A2.v1_zPos(index2)];
+        agent(2).pos_1 = [A2.v1_lat(index2),A2.v1_lon(index2),A2.v1_zPos(index2)];
         agent(2).vel_1 = [A2.v1_xVel(index2),A2.v1_yVel(index2),A2.v1_zVel(index2)];
-        leader_agent(2).pos_error_1 = agent(2).pos_1 - [A2.v2_leadXPos(index2),A2.v2_leadYPos(index2),A2.v2_leadZPos(index2)];
+        leader_agent(2).pos_error_1 = agent(2).pos_1 - [A2.v2_lead_lat(index2),A2.v2_lead_lon(index2),A2.v2_leadZPos(index2)];
         leader_agent(2).vel_error_1 = agent(2).vel_1 - [A2.v2_leadXVel(index2),A2.v2_leadYVel(index2),A2.v2_leadZVel(index2)];
         leader_agent(2).R2T_pos_error_1 = agent(2).pos_1 - agent(2).R2T.R2T_1';
         leader_agent(2).R2T_vel_error_1 = agent(2).vel_1 - agent(2).R2T.R2T_dot_1';

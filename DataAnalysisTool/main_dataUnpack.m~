@@ -158,38 +158,9 @@ function myPlots(agent,plt_stuff,data)
     
     
     
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    figure
-    subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,1))
-    xlim([startTime endTime])
-    grid on
-    
-    subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,2))
-    xlim([startTime endTime])
-    grid on
-    
-    subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,3))
-    xlim([startTime endTime])
-    grid on
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Plot the relative positions of each agent
-    
-    
-    target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
 %     dx_pi = cellfun(@str2num,data(1).A.v2_dx(plt_stuff.plot_index),'un',0);
     for i = 1:length(data(1).A.RelTime)
-        rel_pos(:,i) = getRelPos(agent(1).pos_2(i,1:2),agent(1).pos_1(i,1:2)) - (target_vectors(1,1:2) - target_vectors(2,1:2));
+        rel_pos(:,i) = getRelPos(agent(1).pos_2(i,1:2),agent(1).pos_1(i,1:2));
     end
     
     
