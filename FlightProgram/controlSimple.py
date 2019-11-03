@@ -184,9 +184,9 @@ class Controller(threading.Thread):
     def prepTakeoff(self):
         self.vehicle.mode = VehicleMode('STABILIZE')
         print("Arming motors")
-        #self.vehicle.channels.overrides = {'3': 1000}
+        self.vehicle.channels.overrides = {'3': 1000}
         time.sleep(2)
-        #self.vehicle.armed = True
+        self.vehicle.armed = True
 
     def computeTakeoffVelocity(self,desDest):
 	print(self.vehicleState.leader['qgz'])
@@ -208,7 +208,7 @@ class Controller(threading.Thread):
                 self.computeControl()
                 print("Landing")
         elif(self.vehicleState.position['z'] >= (self.vehicleState.initPos['z'] - 0.05)):
-            #self.vehicle.channels.overrides = {'3': 1000}
+            self.vehicle.channels.overrides = {'3': 1000}
             self.vehicle.armed = False
             self.vehicleState.parameters.config['isTakeoff'] = False
             print("Vehicle landed")
@@ -398,7 +398,7 @@ class Controller(threading.Thread):
             return True
 	if(self.vehicle.channels['8'] == 1000 or self.vehicle.channels['6'] >= 1400):
 	    self.vehicleState.abortReasion = "Pilot Override"
-	    #self.vehicle.mode == VehicleMode('ALT_HOLD')
+	    self.vehicle.mode == VehicleMode('ALT_HOLD')
 	    self.releaseControl()
 	    return True
         return False
@@ -681,7 +681,7 @@ class Controller(threading.Thread):
 	if( True):
 		self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
 		#print('hello')
-        	#self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
+        	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
 
 
     def controlFunction(self,delta):

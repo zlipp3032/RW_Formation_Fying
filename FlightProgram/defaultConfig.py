@@ -6,10 +6,10 @@ import math as m
 
 def getParams():
     defaultParams = Parameter()
-    defaultParams.IP = '192.168.2.3'
+    defaultParams.IP = '192.168.2.1'
     defaultParams.receivedTime = time.time()
     defaultParams.Ts = 0.05
-    defaultParams.expectedMAVs = 1
+    defaultParams.expectedMAVs = 2
     defaultParams.ID = 1
     defaultParams.isComplete = True
     defaultParams.GPSTimeout = 1.0
