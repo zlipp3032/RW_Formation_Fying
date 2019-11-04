@@ -12,7 +12,7 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
-path = '/home/zsl/Desktop/Data/';
+path = '/Users/Zack/Documents/Experiments/Outdoor/Data/';
 test = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,6 +152,8 @@ disp('End main.')
 myPlots(agent,plt_stuff,data)
 
 
+
+
 function myPlots(agent,plt_stuff,data)
     startTime = agent(1).time(plt_stuff.plot_index(1));
     endTime = 100; %agent(1).time(plt_stuff.plot_index(end));
@@ -189,6 +191,7 @@ function myPlots(agent,plt_stuff,data)
     target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
 %     dx_pi = cellfun(@str2num,data(1).A.v2_dx(plt_stuff.plot_index),'un',0);
     for i = 1:length(data(1).A.RelTime)
+        qij(i,:) = lla2flat( [agent(1).pos_1(i,:)], agent(1).pos_2(i,1:2), 0, 0 ) - (target_vectors(1,1:3) - target_vectors(2,1:3));
         rel_pos(:,i) = getRelPos(agent(1).pos_2(i,1:2),agent(1).pos_1(i,1:2)) - (target_vectors(1,1:2) - target_vectors(2,1:2));
     end
     
@@ -197,70 +200,152 @@ function myPlots(agent,plt_stuff,data)
     
     
     
-    dlat = data(1).A.v1_lat - data(1).A.v2_lat;
-    dlon = data(1).A.v1_lon - data(1).A.v2_lon;
+
     dz = data(1).A.v1_zPos - data(1).A.v2_zPos;
-    qij = lla2flat( [ dlat dlon 0.*dlat ], [0 0], 0, 0 );
     qij(:,3) = dz;
     
     
     figure
     subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,1))
+    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
     hold on 
-    plot(agent(1).time(plt_stuff.plot_index),rel_pos(1,plt_stuff.plot_index))
+    plot(agent(1).time(plt_stuff.plot_index),rel_pos(1,plt_stuff.plot_index),'b','linewidth',plt_stuff.lval)
     hold off
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_1^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     
     subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,2))
+    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
     hold on 
-    plot(agent(1).time(plt_stuff.plot_index),rel_pos(2,plt_stuff.plot_index))
+    plot(agent(1).time(plt_stuff.plot_index),rel_pos(2,plt_stuff.plot_index),'b','linewidth',plt_stuff.lval)
     hold off
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_2^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     
     subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,3))
+    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_3^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-
-    
-
     
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Plot the positions of two agents
+    % Plot the relative velocities of each agent
     
+    pij = agent(1).vel_1 - agent(1).vel_2;
     
     figure
     subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,1))
-    hold on
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,1))
-    hold off
+    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_1^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-
+    
     subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,2))
-    hold on
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,2))
-    hold off
+    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_2^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     
     subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,3))
-    hold on
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,3))
-    hold off
+    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
     xlim([startTime endTime])
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_3^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
+
+    
+
+    
+    
+    
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % Plot the positions of two agents
+%     
+%     
+%     figure
+%     subplot(3,1,1)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('Lat (deg)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+% 
+%     subplot(3,1,2)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('Lon (deg)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+%     
+%     subplot(3,1,3)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,3),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('Alt (m)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+%     
+%     
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % Plot the velocities of two agents
+%     
+%     
+%     figure
+%     subplot(3,1,1)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('$e_1^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+% 
+%     subplot(3,1,2)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('$e_2^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+%     
+%     subplot(3,1,3)
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,3),'r','linewidth',plt_stuff.lval)
+%     hold off
+%     xlim([startTime endTime])
+%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+%     ylabel('$e_3^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
+%     grid on
+    
+    
+    
 
     
     
