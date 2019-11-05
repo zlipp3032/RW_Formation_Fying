@@ -385,22 +385,22 @@ class Controller(threading.Thread):
         return initPosSet
 
     def checkAbort(self):
-        #if(self.checkTimeouts()):
-        #    self.vehicleState.abortReason = "Timeout"
+        if(self.checkTimeouts()):
+            self.vehicleState.abortReason = "Timeout"
         #    self.rigdBodyState.RCLatch = True
         #    self.rigidBodyState.isGPS = False
-        #    self.releaseControl()
-        #    return True
+            self.releaseControl()
+            return True
         #! Check the proper flight mode
         if(not self.vehicle.mode == 'STABILIZE'):
 	    self.vehicleState.abortReason = "Wrong F.M."
             self.releaseControl()
             return True
-	#if(self.vehicle.channels['8'] == 1000 or self.vehicle.channels['6'] >= 1400):
-	#    self.vehicleState.abortReasion = "Pilot Override"
-	#    self.vehicle.mode == VehicleMode('ALT_HOLD')
-	#    self.releaseControl()
-	#    return True
+	if(self.vehicle.channels['8'] == 1000 or self.vehicle.channels['6'] >= 1400):
+	    self.vehicleState.abortReasion = "Pilot Override"
+	    self.vehicle.mode == VehicleMode('ALT_HOLD')
+	    self.releaseControl()
+	    return True
         return False
 
     def checkTimeouts(self):
