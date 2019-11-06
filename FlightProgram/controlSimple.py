@@ -403,7 +403,7 @@ class Controller(threading.Thread):
         #    self.releaseControl()
         #    return True
         #! Check the proper flight mode
-        if(not self.vehicle.mode == 'STABILIZE'):
+        if(not self.vehicle.mode == self.vehicleState.parameters.config['flight_mode']):
 	    self.vehicleState.abortReason = "Wrong F.M."
             self.releaseControl()
             return True

@@ -51,7 +51,8 @@ def getParams():
                             'ignoreSelfPackets': True,
                             'hoverVel': True,
 			    'GCS_timeout': 5, # seconds
-			    'Form_timeout': 4 # seconds
+			    'Form_timeout': 4, # seconds
+			    'flight_mode': 'GUIDED' # 'STABILIZE', 'ALT_HOLD', 'LOITER', 'RTL', 'LAND', 'GUIDED', etc... See Arducopter documentation
                             }
         
     
