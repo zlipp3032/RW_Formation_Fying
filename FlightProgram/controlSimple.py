@@ -153,7 +153,8 @@ class Controller(threading.Thread):
             self.computeLandingVelocity(desDest)
 
     def takeoff_outdoor(self):
-	self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
+	if (not self.vehicleState.parameters.config['isTakingOff']):
+	    self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
 
     def takeoff(self):
 	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
@@ -895,6 +896,7 @@ class Controller(threading.Thread):
         """
         Arms vehicle and fly to aTargetAltitude.
         """
+	self.vehicleState.parameters.config['isTakingOff'] = True
 
         print "Basic pre-arm checks"
         # Don't try to arm until autopilot is ready

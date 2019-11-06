@@ -43,6 +43,7 @@ def getParams():
                             'grav': 9.81,
                             'isGPS': True,
                             'isTakeoff': False,
+			    'isTakingOff': = False,
                             'initPos': False,
                             'isLanding': False,
                             'isHovering': False,
