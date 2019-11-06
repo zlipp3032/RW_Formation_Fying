@@ -152,6 +152,9 @@ class Controller(threading.Thread):
             self.vehicleState.leader['qgz'] = self.vehicleState.initPos['z']
             self.computeLandingVelocity(desDest)
 
+    def takeoff_outdoor(self):
+	self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
+
     def takeoff(self):
 	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
 	self.vehicleState.leader['lat'] = self.vehicleState.initPos['lat']
