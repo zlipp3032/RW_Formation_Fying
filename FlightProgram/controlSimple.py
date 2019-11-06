@@ -39,7 +39,7 @@ class Controller(threading.Thread):
 #        print(self.stateVehicles[2].timestamp)
 	self.vehicle = vehicle
         self.lastGCSContact = -1
-        self.prepTakeoff()
+        #self.prepTakeoff()
 
     def stop(self):
         self.stoprequest.set()
@@ -195,9 +195,9 @@ class Controller(threading.Thread):
     def prepTakeoff(self):
         self.vehicle.mode = VehicleMode('STABILIZE')
         print("Arming motors")
-        self.vehicle.channels.overrides = {'3': 1000}
+        #self.vehicle.channels.overrides = {'3': 1000}
         time.sleep(2)
-        self.vehicle.armed = True
+        #self.vehicle.armed = True
 
     def computeTakeoffVelocity(self,desDest):
 	print(self.vehicleState.leader['qgz'])
@@ -219,7 +219,7 @@ class Controller(threading.Thread):
                 self.computeControl()
                 print("Landing")
         elif(self.vehicleState.position['z'] >= (self.vehicleState.initPos['z'] - 0.05)):
-            self.vehicle.channels.overrides = {'3': 1000}
+            #self.vehicle.channels.overrides = {'3': 1000}
             self.vehicle.armed = False
             self.vehicleState.parameters.config['isTakeoff'] = False
             print("Vehicle landed")
@@ -688,11 +688,13 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['pitch_PWM'] = self.saturate(PITCH,1000,2000)
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
+	# Send a velocity command using MAV link
+	self.send_ned_Velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
-	if( True):
-		self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
-		#print('hello')
-        	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
+	#if( True):
+	#	self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
+	#	#print('hello')
+        #	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
 
 
     def controlFunction(self,delta):
