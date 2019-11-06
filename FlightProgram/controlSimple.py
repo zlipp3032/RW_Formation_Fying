@@ -77,7 +77,7 @@ class Controller(threading.Thread):
 
     def switchFlightSequence(self):
         arg = self.vehicleState.flightSeq
-        flightSequence = {0: self.idleFunction, 1: self.takeoff, 2: self.hover, 3: self.RTL, 4: self.landing, 5: self.virtual_leader, 6: self.formation}
+        flightSequence = {0: self.idleFunction, 1: self.takeoff_outdoor, 2: self.hover, 3: self.RTL, 4: self.landing_outdoor, 5: self.virtual_leader, 6: self.formation}
         Keyboard_Command_Handler = flightSequence.get(arg, lambda: 'Invalid Command')
         Keyboard_Command_Handler()
 
@@ -155,6 +155,13 @@ class Controller(threading.Thread):
     def takeoff_outdoor(self):
 	if (not self.vehicleState.parameters.config['isTakingOff']):
 	    self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
+
+    def landing_outdoor(self):
+	if (not self.vehicleState.parameters.config['isLanding']):
+	    self.vehicle.mode = VehicleMode('LAND')
+	if (self.vehicle.mode == 'LAND') :
+	    self.vehicleState.parameters.config['isLanding'] = True   
+
 
     def takeoff(self):
 	self.vehicleState.leader['lon'] = self.vehicleState.initPos['lon']
