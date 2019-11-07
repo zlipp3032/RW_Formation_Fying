@@ -154,14 +154,15 @@ class Controller(threading.Thread):
 
     def takeoff_outdoor(self):
 	if (not self.vehicleState.parameters.config['isTakingOff']):
-	    print('send takeoff command')
+	    print('Sending takeoff command.')
 	    self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
 
     def landing_outdoor(self):
 	if (not self.vehicleState.parameters.config['isLanding']):
 	    self.vehicle.mode = VehicleMode('LAND')
+	    print "Vehicle is landing."
 	if (self.vehicle.mode == 'LAND') :
-	    self.vehicleState.parameters.config['isLanding'] = True   
+	    self.vehicleState.parameters.config['isLanding'] = True
 
 
     def takeoff(self):
@@ -692,7 +693,7 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	self.send_ned_Velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
+	self.send_ned_Velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],0.0,1)
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
 	#	self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
