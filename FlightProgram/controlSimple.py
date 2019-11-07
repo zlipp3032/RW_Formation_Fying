@@ -39,7 +39,7 @@ class Controller(threading.Thread):
 #        print(self.stateVehicles[2].timestamp)
 	self.vehicle = vehicle
         self.lastGCSContact = -1
-        #self.prepTakeoff()
+        self.prepTakeoff()
 
     def stop(self):
         self.stoprequest.set()
@@ -154,6 +154,7 @@ class Controller(threading.Thread):
 
     def takeoff_outdoor(self):
 	if (not self.vehicleState.parameters.config['isTakingOff']):
+	    print('send takeoff command')
 	    self.arm_and_takeoff(self.vehicleState.parameters.config['targetAltitude'])
 
     def landing_outdoor(self):
@@ -193,10 +194,12 @@ class Controller(threading.Thread):
 
 
     def prepTakeoff(self):
-        self.vehicle.mode = VehicleMode('STABILIZE')
-        print("Arming motors")
+        self.vehicle.mode = VehicleMode(self.vehicleState.parameters.config['flight_mode'])
+        #print("Arming motors")
+	#print(self.vehicle.mode)
         #self.vehicle.channels.overrides = {'3': 1000}
         time.sleep(2)
+	print(self.vehicle.mode)
         #self.vehicle.armed = True
 
     def computeTakeoffVelocity(self,desDest):
@@ -901,7 +904,7 @@ class Controller(threading.Thread):
             #time.sleep(self.rigidBodyState.parameters.Ts)
 
 
-    def arm_and_takeoff(aTargetAltitude):
+    def arm_and_takeoff(self,aTargetAltitude):
         """
         Arms vehicle and fly to aTargetAltitude.
         """
@@ -909,32 +912,32 @@ class Controller(threading.Thread):
 
         print "Basic pre-arm checks"
         # Don't try to arm until autopilot is ready
-        while not vehicle.is_armable:
+        while not self.vehicle.is_armable:
             print " Waiting for vehicle to initialise..."
             time.sleep(1)
 
         print "Arming motors"
         # Copter should arm in GUIDED mode
-        vehicle.mode    = VehicleMode("GUIDED")
-        vehicle.armed   = True
+        #vehicle.mode    = VehicleMode("GUIDED")
+        #self.vehicle.armed   = True
 
         # Confirm vehicle armed before attempting to take off
-        while not vehicle.armed:
+        while not self.vehicle.armed:
             print " Waiting for arming..."
             time.sleep(1)
 
         print "Taking off!"
-        vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
+        #vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
         # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
         #  after Vehicle.simple_takeoff will execute immediately).
         while True:
-            print " Altitude: ", vehicle.location.global_relative_frame.alt
+            print " Altitude: ", self.vehicle.location.global_relative_frame.alt
             #Break and return from function just below target altitude.
-            if vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95:
+            if self.vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95:
                 print "Reached target altitude"
                 break
-            time.sleep(1)
+            time.sleep(0.05)
 
 #arm_and_takeoff(20) # the target altitude is given in meters!
 
