@@ -525,7 +525,7 @@ class Controller(threading.Thread):
 	qg =  np.matrix([[self.vehicleState.leader['lat']],[self.vehicleState.leader['lon']],[self.vehicleState.leader['qgz']]])
         pg =  np.matrix([[self.vehicleState.leader['pgx']],[self.vehicleState.leader['pgy']],[self.vehicleState.leader['pgz']]])
         ug =  np.matrix([[self.vehicleState.leader['ugx']],[self.vehicleState.leader['ugy']],[self.vehicleState.leader['ugz']]])
-	qg_prime = np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[0.0]]])
+	qg_prime = np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[0.0]])
         #pg = self.computeLeaderVelocity(qg)
 	#print((qg,pg))
 	# Compute the rotation sequence of the leader
@@ -695,7 +695,7 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState.['vz_des']),1)
+	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
