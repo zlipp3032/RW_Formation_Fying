@@ -1,4 +1,5 @@
 from dronekit import connect,VehicleMode, Vehicle
+from pymavlink import mavutil
 import time
 import logging
 from vehicleState import *
@@ -693,7 +694,7 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	self.send_ned_Velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],0.0,1)
+	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],0.0,1)
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
 	#	self.vehicleState.attitude['prev_time'] = self.vehicleState.attitude['time']
