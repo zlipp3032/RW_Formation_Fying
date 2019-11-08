@@ -71,24 +71,15 @@ disp('Exit.')
 function [qg,pg,ug,attg] = qgfunc(t,wg)
     
 
-    % Non-moving leader
-    qg = [0.0,0.0,-4.0];
-    pg = [0.0,0.0,0.0];
-    ug = [0.0,0.0,0.0];
-    attg = [0.0,0.0,0.0];    
+    %
 
-    % Translating Leader: Sinusoidal trajectory in the x direction
-%     amp = 1;
-%     freq = 1/50;
-%     qg = [amp*sin(freq*2*pi*t),0.0,-4.0];
-%     pg = [amp*freq*2*pi*cos(freq*2*pi*t),0.0,0.0];
-%     ug = [-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0,0.0];
-%     attg = [0.0,0.0,0.0];
-
-
-    % Rotating leader: Yaw based on constant yaw rate
-    % On the to-do list
-    
+    % Sinusoidal trajectory in the x direction
+    amp = 1;
+    freq = 1/50;
+    qg = [amp*sin(freq*2*pi*t),0.0,-4.0];
+    pg = [amp*freq*2*pi*cos(freq*2*pi*t),0.0,0.0];
+    ug = [-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0,0.0];
+    attg = [0.0,0.0,0.0];
     
 
 end
