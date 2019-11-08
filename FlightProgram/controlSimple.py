@@ -480,8 +480,8 @@ class Controller(threading.Thread):
 	Rg_ddot = np.dot(Rg_dot,Omega) + np.dot(Rg_IB,Omega_dot)
 	# Compute the relative position of the leader and the agent
 	dq = self.getRelPos(qi,qg) #+ np.dot(Rg_IB,self.vehicleState.R2T[:,ID-1])
-	#if (self.vehicleState.flightSeq == 5):
-	#	dq = dq + qg_prime
+	if (self.vehicleState.flightSeq == 5):
+		dq = dq + qg_prime
 	self.vehicleState.leader['dx'] = dq[0,0]
 	self.vehicleState.leader['dy'] = dq[1,0]
 	#print(np.dot(Rg,self.vehicleState.R2T[:,ID-1]))
@@ -525,6 +525,7 @@ class Controller(threading.Thread):
 	qg =  np.matrix([[self.vehicleState.leader['lat']],[self.vehicleState.leader['lon']],[self.vehicleState.leader['qgz']]])
         pg =  np.matrix([[self.vehicleState.leader['pgx']],[self.vehicleState.leader['pgy']],[self.vehicleState.leader['pgz']]])
         ug =  np.matrix([[self.vehicleState.leader['ugx']],[self.vehicleState.leader['ugy']],[self.vehicleState.leader['ugz']]])
+	qg_prime = np.matrix([[self.vehicleState.leader['qgx']],[self.vehicleState.leader['qgy']],[0.0]]])
         #pg = self.computeLeaderVelocity(qg)
 	#print((qg,pg))
 	# Compute the rotation sequence of the leader
@@ -580,7 +581,7 @@ class Controller(threading.Thread):
 		    ####################
 	### Compute the leader control ###
 	dia = self.vehicleState.R2T[:,ID-1]
-	dqg = self.getRelPos(qi,qg) + np.dot(Rg_IB,dia)
+	dqg = self.getRelPos(qi,qg) + np.dot(Rg_IB,dia) + qg_prime
 	dpg = pg - pi + np.dot(Rg_dot,dia)
 	self.vehicleState.leader['dx'] = dqg[0,0]
 	self.vehicleState.leader['dy'] = dqg[1,0]
