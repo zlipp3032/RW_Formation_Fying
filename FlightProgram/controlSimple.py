@@ -878,6 +878,10 @@ class Controller(threading.Thread):
 	return np.matrix([[dx], [dy],[dz]])
 
 
+    def low_pass(self,state,lp_prev,filt):
+	output = filt*lp_prev + (1-filt)*state
+	return output
+
 
     # Velocity commands with respect to home location directionally
     # Be sure tp set up the home location and know your bearings; update the table below before you fly
@@ -923,7 +927,7 @@ class Controller(threading.Thread):
         print "Arming motors"
         # Copter should arm in GUIDED mode
         #vehicle.mode    = VehicleMode("GUIDED")
-        #self.vehicle.armed   = True
+        self.vehicle.armed = True
 
         # Confirm vehicle armed before attempting to take off
         while not self.vehicle.armed:
@@ -931,7 +935,7 @@ class Controller(threading.Thread):
             time.sleep(1)
 
         print "Taking off!"
-        #vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
+        self.vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
         # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
         #  after Vehicle.simple_takeoff will execute immediately).
