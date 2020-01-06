@@ -338,6 +338,9 @@ class Controller(threading.Thread):
         self.vehicleState.channels['yaw'] = self.vehicle.channels['4']
         self.vehicleState.droneState['battVolt'] = self.vehicle.battery.voltage
         self.vehicleState.timestamp = self.vehicle.location.global_relative_frame.time
+	#! Low pass the z velocity
+	self.vehicleState.low_pass['zVel_lp_prev'] = self.vehicleState.low_pass['zVel_lp']
+	self.vehicleState.low_pass['zVel_lp'] = self.low_pass(self.vehicleState.velocity['vz'],self.vehicleState.low_pass['zVel_lp_prev'],0.7)
 
     def updateGlobalStateWithData(self,ID,msg):
         self.vehicleState.flightSeq = msg.content['flightSeq']
@@ -498,6 +501,9 @@ class Controller(threading.Thread):
 	temp_dq = self.controlFunction(dq)
 	temp_dp = self.controlFunction(dp)
         uk = ug + np.dot(kp,temp_dq) + np.dot(kd,temp_dp) + np.dot(ki,accPosError)
+	#! Low Pass the control
+	self.vehicleState.low_pass['uz_lp_prev'] = self.vehicleState.low_pass['uz_lp']
+	self.vehicleState.low_pass['uz_lp'] = self.low_pass(uk[2,0],self.vehicleState.low_pass['uz_lp_prev'],0.7)
 	# Add the collision avoidance term
 	#avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
 	#uk = np.dot(scale,uk) + avoid
@@ -508,6 +514,9 @@ class Controller(threading.Thread):
 	#temp1 = (uk + ukp)/2.0
         #temp2 = Ts*temp1
         pk = pkp + np.dot(Ts,uk)
+	#! Low pass the velocity input
+	self.vehicleState.low_pass['vz_des_lp_prev'] = self.vehicleState.low_pass['vz_des_lp']
+	self.vehicleState.low_pass['vz_des_lp'] = self.low_pass(pk[2,0],self.vehicleState.low_pass['vz_des_lp_prev'],0.7)
         self.updateControlState(pi,pk,uk,accPosError,Ts)
         #print(accPosError)
         
