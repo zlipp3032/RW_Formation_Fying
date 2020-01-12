@@ -705,6 +705,8 @@ class Controller(threading.Thread):
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
 	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
+	# Send a attitude and fractional thrust command uing MAV link
+	#self.send_attitude_target(self.vehicleState.controlState['roll'],self.vehicleState.controlState['pitch'],None,0.0,False,0.5)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
