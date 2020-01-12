@@ -704,9 +704,9 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
+	#self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
 	# Send a attitude and fractional thrust command uing MAV link
-	#self.send_attitude_target(self.vehicleState.controlState['roll'],self.vehicleState.controlState['pitch'],None,0.0,False,0.5)
+	self.send_attitude_target(self.vehicleState.controlState['roll'],self.vehicleState.controlState['pitch'],None,0.0,False,0.5)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
@@ -925,45 +925,45 @@ class Controller(threading.Thread):
     def send_attitude_target(self,roll_angle = 0.0, pitch_angle = 0.0,
                          yaw_angle = None, yaw_rate = 0.0, use_yaw_rate = False,
                          thrust = 0.5):
-	"""
-	use_yaw_rate: the yaw can be controlled using yaw_angle OR yaw_rate.
-                  When one is used, the other is ignored by Ardupilot.
-	thrust: 0 <= thrust <= 1, as a fraction of maximum vertical thrust.
-            Note that as of Copter 3.5, thrust = 0.5 triggers a special case in
-            the code for maintaining current altitude.
-	"""
+	#"""
+	#use_yaw_rate: the yaw can be controlled using yaw_angle OR yaw_rate.
+        #          When one is used, the other is ignored by Ardupilot.
+	#thrust: 0 <= thrust <= 1, as a fraction of maximum vertical thrust.
+        #    Note that as of Copter 3.5, thrust = 0.5 triggers a special case in
+        #    the code for maintaining current altitude.
+	#"""
 	if yaw_angle is None:
     	    # this value may be unused by the vehicle, depending on use_yaw_rate
-            yaw_angle = vehicle.attitude.yaw
+            yaw_angle = self.vehicle.attitude.yaw
 	# Thrust >  0.5: Ascend
 	# Thrust == 0.5: Hold the altitude
 	# Thrust <  0.5: Descend
-	msg = vehicle.message_factory.set_attitude_target_encode(
+	msg = self.vehicle.message_factory.set_attitude_target_encode(
 	    0, # time_boot_ms
             1, # Target system
             1, # Target component
             0b00000000 if use_yaw_rate else 0b00000100,
-            to_quaternion(roll_angle, pitch_angle, yaw_angle), # Quaternion
+            self.to_quaternion(roll_angle, pitch_angle, yaw_angle), # Quaternion
             0, # Body roll rate in radian
             0, # Body pitch rate in radian
-            math.radians(yaw_rate), # Body yaw rate in radian/second
+            m.radians(yaw_rate), # Body yaw rate in radian/second
             thrust  # Thrust
             )
-	vehicle.send_mavlink(msg)
+	self.vehicle.send_mavlink(msg)
 
 
 
 
     def to_quaternion(self,roll = 0.0, pitch = 0.0, yaw = 0.0):
-	"""
-	Convert degrees to quaternions
-	"""
-	t0 = math.cos(math.radians(yaw * 0.5))
-	t1 = math.sin(math.radians(yaw * 0.5))
-	t2 = math.cos(math.radians(roll * 0.5))
-	t3 = math.sin(math.radians(roll * 0.5))
-	t4 = math.cos(math.radians(pitch * 0.5))
-	t5 = math.sin(math.radians(pitch * 0.5))
+	#"""
+	#Convert degrees to quaternions
+	#"""
+	t0 = m.cos(m.radians(yaw * 0.5))
+	t1 = m.sin(m.radians(yaw * 0.5))
+	t2 = m.cos(m.radians(roll * 0.5))
+	t3 = m.sin(m.radians(roll * 0.5))
+	t4 = m.cos(m.radians(pitch * 0.5))
+	t5 = m.sin(m.radians(pitch * 0.5))
 
 	w = t0 * t2 * t4 + t1 * t3 * t5
 	x = t0 * t3 * t4 - t1 * t2 * t5
