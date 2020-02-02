@@ -12,15 +12,18 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
-path = '/Users/Zack/Documents/Experiments/Outdoor/Data/';
-test = '';
+path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Data';
+test = '/Outdoor/FormationTests/Outdoor_013020/';
+
+% path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Outdoor/ArduPilotLogAnalysis/FlightLogs_v06/';
+% test = '';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_07__13_54_00_log_v1';
-data(2).file = '2019_09_07__06_30_43_log_v2';
-data(3).file = '2019_09_06__20_02_54_log_v3';
+data(1).file = '2019_09_08__03_47_41_log_v1';
+data(2).file = '2019_09_07__12_24_01_log_v2';
+data(3).file = '2020_01_21__10_47_34_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -29,9 +32,8 @@ data(3).file = '2019_09_06__20_02_54_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute the desired distance in the leader frame
-% target_vectors = [1.5 0.43 -0.2; -1.5 0.43 -0.2; 0.0 -1.2 -0.2]; 
-% target_vectors = [0.75 0.43 -0.2; -0.75 0.43 -0.2; 0.0 -0.87 -0.2]; 
-target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
+% target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
+target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -45,6 +47,8 @@ plt_stuff.plot_single = 0;
 plt_stuff.plot_double = 0;
 plt_stuff.plot_triple = 0;
 
+plt_stuff.plot_sequence = 2; %0: Whole flight; 1: Virtual Leader; 2: Formation Control
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set the figure file name and figure path
 % plt_stuff.file_str = 'exp_directed_tran_rot_';
@@ -53,8 +57,8 @@ plt_stuff.plot_triple = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the font size and line width
-plt_stuff.fsize = 14;%10
-plt_stuff.leg_fsize = 10;%8
+plt_stuff.fsize = 16;%10
+plt_stuff.leg_fsize = 12;%8
 plt_stuff.lval = 1.2;
 
 
@@ -67,10 +71,12 @@ disp('Begin Unpacking Data')
 
 % First agent unpack data sequence
 try
+%     data(1).dataPath = [path test 'Agent1/' data(1).file '.csv'];
     data(1).dataPath = [path test 'Agent1/' data(1).file '.csv'];
     data(1).A = readtable(data(1).dataPath);
     data(1).index = find(data(1).A.v1_flightSequence > 0);
     data(1).index_form = find(data(1).A.v1_flightSequence == 6);
+    data(1).index_virt = find(data(1).A.v1_flightSequence == 5);
 catch
     disp('No vehicle 1 data file.')
     data(1).A = 0;
@@ -116,19 +122,33 @@ leader_agent_stats = computeLeaderAgentAverageErrors(agent,data,leader_agent,int
 
 
 
+
+
 %% Plotting Seqeunce
 disp('Initiate Plotting Sequence')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the index for which you want to plot
-% plt_stuff.plot_index = agent(1).index;
-plt_stuff.plot_index = agent(1).index_form;
-% plt_stuff.plot_index = agent(1).index_virt;
 
+switch plt_stuff.plot_sequence
+    case 0
+        plt_stuff.plot_index = agent(1).index;
+    case 1
+        plt_stuff.plot_index = agent(1).index_virt;
+    case 2
+        plt_stuff.plot_index = agent(1).index_form;
+    otherwise
+        disp('Pick new plotting sequence.')
+        disp('0: Whole flight')
+        disp('1: Virtual Leader')
+        disp('2: Formation Control')
+end
+
+      
 
 if(plt_stuff.plot_single)
    disp('Single agent plots.')
-   plotPositionAndVelocity(agent,plt_stuff)
+   plotPositionAndVelocity(agent,plt_stuff,data)
 %    plotPositionAndVelocity_R2T(agent,plt_stuff)
    
 end
@@ -149,209 +169,163 @@ end
 disp('End main.')
 
 %% Extra Plotting sequence
-myPlots(agent,plt_stuff,data)
+myPlots(agent,plt_stuff,data,target_vectors)
 
 
 
 
-function myPlots(agent,plt_stuff,data)
+function myPlots(agent,plt_stuff,data,di)
     startTime = agent(1).time(plt_stuff.plot_index(1));
-    endTime = 100; %agent(1).time(plt_stuff.plot_index(end));
+    endTime = agent(1).time(plt_stuff.plot_index(end));
     
     
+    agent_vel_1 = agent(1).vel_1(plt_stuff.plot_index,:);
+    agent_vel_2 = agent(1).vel_2(plt_stuff.plot_index,:);
+    agent_vel_3 = agent(1).vel_3(plt_stuff.plot_index,:);
     
+    lead_vel = agent(1).leader_vel(plt_stuff.plot_index,:);
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    figure
-    subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,1))
-    xlim([startTime endTime])
-    grid on
-    
-    subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,2))
-    xlim([startTime endTime])
-    grid on
-    
-    subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).ctrl(plt_stuff.plot_index,3))
-    xlim([startTime endTime])
-    grid on
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Plot the relative positions of each agent
-    
-    
-    target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
-%     dx_pi = cellfun(@str2num,data(1).A.v2_dx(plt_stuff.plot_index),'un',0);
-    for i = 1:length(data(1).A.RelTime)
-        qij(i,:) = lla2flat( [agent(1).pos_1(i,:)], agent(1).pos_2(i,1:2), 0, 0 ) - (target_vectors(1,1:3) - target_vectors(2,1:3));
-        rel_pos(:,i) = getRelPos(agent(1).pos_2(i,1:2),agent(1).pos_1(i,1:2)) - (target_vectors(1,1:2) - target_vectors(2,1:2));
-    end
-    
-    
-%     plot(agent(1).time(plt_stuff.plot_index),rel_pos(:,plt_stuff.plot_index))
-    
-    
-    
-
-    dz = data(1).A.v1_zPos - data(1).A.v2_zPos;
-    qij(:,3) = dz;
-    
-    
-    figure
-    subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
-    hold on 
-    plot(agent(1).time(plt_stuff.plot_index),rel_pos(1,plt_stuff.plot_index),'b','linewidth',plt_stuff.lval)
-    hold off
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_1^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    
-    subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
-    hold on 
-    plot(agent(1).time(plt_stuff.plot_index),rel_pos(2,plt_stuff.plot_index),'b','linewidth',plt_stuff.lval)
-    hold off
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_2^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    
-    subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),qij(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_3^{\rm T} \xi_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Plot the relative velocities of each agent
-    
-    pij = agent(1).vel_1 - agent(1).vel_2;
-    
-    figure
-    subplot(3,1,1)
-    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_1^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    
-    subplot(3,1,2)
-    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_2^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    
-    subplot(3,1,3)
-    plot(agent(1).time(plt_stuff.plot_index),pij(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
-    xlim([startTime endTime])
-    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-    ylabel('$e_3^{\rm T} \rho_{ij}$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-
-    
-
-    
-    
-    
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % Plot the positions of two agents
-%     
-%     
-%     figure
-%     subplot(3,1,1)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('Lat (deg)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-% 
-%     subplot(3,1,2)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('Lon (deg)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-%     
-%     subplot(3,1,3)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).pos_2(plt_stuff.plot_index,3),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('Alt (m)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-%     
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % Plot the velocities of two agents
-%     
-%     
-%     figure
-%     subplot(3,1,1)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,1),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,1),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('$e_1^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-% 
-%     subplot(3,1,2)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,2),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,2),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('$e_2^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-%     
-%     subplot(3,1,3)
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_1(plt_stuff.plot_index,3),'b','linewidth',plt_stuff.lval)
-%     hold on
-%     plot(agent(1).time(plt_stuff.plot_index),agent(1).vel_2(plt_stuff.plot_index,3),'r','linewidth',plt_stuff.lval)
-%     hold off
-%     xlim([startTime endTime])
-%     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
-%     ylabel('$e_3^{\rm T} p_i ~(\frac{m}{s})$','interpreter','latex','FontSize',plt_stuff.fsize)
-%     grid on
-    
-    
-    
-
-    
-    
-    
+    for i = 1:length(agent(1).time(plt_stuff.plot_index))
+        agent_pos_1(i,:) = lla2flat([agent(1).pos_1(plt_stuff.plot_index(i),1),agent(1).pos_1(plt_stuff.plot_index(i),2),agent(1).pos_1(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
+        agent_pos_2(i,:) = lla2flat([agent(1).pos_2(plt_stuff.plot_index(i),1),agent(1).pos_2(plt_stuff.plot_index(i),2),agent(1).pos_2(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
+        agent_pos_3(i,:) = lla2flat([agent(1).pos_3(plt_stuff.plot_index(i),1),agent(1).pos_3(plt_stuff.plot_index(i),2),agent(1).pos_3(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
+        lead_pos(i,:) = lla2flat([agent(1).leader_pos(plt_stuff.plot_index(i),1),agent(1).leader_pos(plt_stuff.plot_index(i),2),agent(1).leader_pos(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
 
     end
+    
+    ones_mat = ones(length(agent(1).time(plt_stuff.plot_index)),3);
+    
+    lead_R2T_1 = -lead_pos + di(1,:).*ones_mat;
+    lead_R2T_2 = -lead_pos + di(2,:).*ones_mat;
+    lead_R2T_3 = -lead_pos + di(3,:).*ones_mat;
+    
+    
+    
+
+
+    % Plot the agent's positions
+    fig1 = figure;
+    subplot(3,1,1)
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_1(:,1),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_2(:,1),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_3(:,1),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_1(:,1),'b --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,1),'r --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,1),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{1}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,2)
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_1(:,2),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_2(:,2),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),agent_pos_3(:,2),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_1(:,2),'b --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,2),'r --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,2),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{2}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(agent(1).time(plt_stuff.plot_index),-agent_pos_1(:,3),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),-agent_pos_2(:,3),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),-agent_pos_3(:,3),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_1(:,3),'b --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,3),'r --','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,3),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{3}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_fig1 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g} + \delta_i$'},'orientation','horizontal'); % sets the legend entries to nothing
+    legend boxoff
+    set(leg_fig1,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    
+    
+    
+    % Plot the agent's velocities
+    fig1 = figure;
+    subplot(3,1,1)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_1(:,1),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,1),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_3(:,1),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_vel(:,1),'k --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,1),'r --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,1),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{1}^{\rm T} p_i$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,2)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_1(:,2),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,2),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_3(:,2),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_vel(:,2),'k --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,2),'r --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,2),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{2}^{\rm T} p_i$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_1(:,3),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,3),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),agent_vel_3(:,3),'g','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),lead_vel(:,3),'k --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_2(:,3),'r --','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),lead_R2T_3(:,3),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{3}^{\rm T} p_i$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_fig1 = legend({'$p_1$','$p_2$','$p_3$','$p_{\rm g} + \dot{\delta}_i$'},'orientation','horizontal'); % sets the legend entries to nothing
+    legend boxoff
+    set(leg_fig1,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+
+
+
+    
+    
+    
+
+end
 
     %% Functions used in data processing
     
