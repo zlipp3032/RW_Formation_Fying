@@ -12,8 +12,8 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
-path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Data';
-test = '/Outdoor/FormationTests/Outdoor_013020/';
+path = '~/Desktop/Data/';
+test = 'Form_Tests/Outdoor_013020/';
 
 % path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Outdoor/ArduPilotLogAnalysis/FlightLogs_v06/';
 % test = '';
@@ -199,6 +199,75 @@ function myPlots(agent,plt_stuff,data,di)
     lead_R2T_2 = -lead_pos + di(2,:).*ones_mat;
     lead_R2T_3 = -lead_pos + di(3,:).*ones_mat;
     
+    pos_12 = agent_pos_1 - agent_pos_2;
+    pos_13 = agent_pos_1 - agent_pos_3;
+    pos_23 = agent_pos_2 - agent_pos_3;
+    td = [startTime endTime]';
+    d12 = [(di(1,:) - di(2,:));(di(1,:) - di(2,:))];
+    d13 = [(di(1,:) - di(3,:));(di(1,:) - di(3,:))];
+    d23 = [(di(2,:) - di(3,:));(di(2,:) - di(3,:))];
+    
+    
+    
+    % Plot the inter-agent positions
+    fig0 = figure;
+    subplot(3,1,1)
+    plot(agent(1).time(plt_stuff.plot_index),pos_12(:,1),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),pos_13(:,1),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),pos_23(:,1),'g','linewidth',plt_stuff.lval)
+    plot(td,d12(:,1),'b --','linewidth',plt_stuff.lval)
+    plot(td,d13(:,1),'r --','linewidth',plt_stuff.lval)
+    plot(td,d23(:,1),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{1}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,2)
+    plot(agent(1).time(plt_stuff.plot_index),pos_12(:,2),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),pos_13(:,2),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),pos_23(:,2),'g','linewidth',plt_stuff.lval)
+    plot(td,d12(:,2),'b --','linewidth',plt_stuff.lval)
+    plot(td,d13(:,2),'r --','linewidth',plt_stuff.lval)
+    plot(td,d23(:,2),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{2}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(agent(1).time(plt_stuff.plot_index),-pos_12(:,3),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(agent(1).time(plt_stuff.plot_index),-pos_13(:,3),'r','linewidth',plt_stuff.lval)
+    plot(agent(1).time(plt_stuff.plot_index),-pos_23(:,3),'g','linewidth',plt_stuff.lval)
+    plot(td,d12(:,3),'b --','linewidth',plt_stuff.lval)
+    plot(td,d13(:,3),'r --','linewidth',plt_stuff.lval)
+    plot(td,d23(:,3),'g --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{3}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_fig1 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g} + \delta_i$'},'orientation','horizontal'); % sets the legend entries to nothing
+    legend boxoff
+    set(leg_fig1,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     
 
