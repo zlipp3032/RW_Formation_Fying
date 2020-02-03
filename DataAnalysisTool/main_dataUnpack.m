@@ -12,8 +12,8 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
-path = '~/Desktop/Data/';
-test = 'Form_Tests/Outdoor_013020/';
+path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Data/Outdoor/';
+test = 'FormationTests/Outdoor_013020/';
 
 % path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Outdoor/ArduPilotLogAnalysis/FlightLogs_v06/';
 % test = '';
@@ -21,9 +21,9 @@ test = 'Form_Tests/Outdoor_013020/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_08__04_18_19_log_v1';
-data(2).file = '2019_09_07__12_24_01_log_v2';
-data(3).file = '2020_01_21__10_47_34_log_v3';
+data(1).file = '2019_09_08__04_48_24_log_v1';
+data(2).file = '2019_09_07__13_25_40_log_v2';
+data(3).file = '2020_01_21__11_47_41_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -220,7 +220,7 @@ function myPlots(agent,plt_stuff,data,di)
     plot(td,d13(:,1),'r --','linewidth',plt_stuff.lval)
     plot(td,d23(:,1),'g --','linewidth',plt_stuff.lval)
     hold off
-    ylabel('$e_{1}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_{1}^{\rm T} (q_i - q_j)$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     xlim([startTime, endTime])
     leg_dummy = legend(); % sets the legend entries to nothing
@@ -236,7 +236,7 @@ function myPlots(agent,plt_stuff,data,di)
     plot(td,d13(:,2),'r --','linewidth',plt_stuff.lval)
     plot(td,d23(:,2),'g --','linewidth',plt_stuff.lval)
     hold off
-    ylabel('$e_{2}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_{2}^{\rm T} (q_i - q_j)$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     xlim([startTime, endTime])
     leg_dummy = legend(); % sets the legend entries to nothing
@@ -252,10 +252,10 @@ function myPlots(agent,plt_stuff,data,di)
     plot(td,d13(:,3),'r --','linewidth',plt_stuff.lval)
     plot(td,d23(:,3),'g --','linewidth',plt_stuff.lval)
     hold off
-    ylabel('$e_{3}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_{3}^{\rm T} (q_i - q_j)$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     xlim([startTime, endTime])
-    leg_fig1 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g} + \delta_i$'},'orientation','horizontal'); % sets the legend entries to nothing
+    leg_fig1 = legend({'$(q_1 - q_2)$','$(q_1 - q_3)$','$(q_2 - q_3)$','$\delta_i + \delta_j$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig1,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
     

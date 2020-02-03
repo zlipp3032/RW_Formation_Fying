@@ -4,25 +4,25 @@ clc
 close all
 
 % Inter-agent position gains
-a12 = 0.1;
-a13 = a12;
-a23 = a12;
+a12 = 0.08;
+a13 = 0.08;
+a23 = 0.01;
 
 
 % Inter-agent velocity gains
-b12 = 0.4;
-b13 = b12;
-b23 = b12;
+b12 = 0.55;
+b13 = 0.55;
+b23 = 0.1;
 
 % Leader Position gains
-g1 = 0.2;
-g2 = g1;
-g3 = g1;
+g1 = 0.25;
+g2 = 0.0;
+g3 = 0.0;
 
 % Leader Velocity gains
-e1 = 0.9;
-e2 = e1;
-e3 = e1;
+e1 = 1.8;
+e2 = 0.0;
+e3 = 0.0;
 
 
 % Set the adjacency matrix
