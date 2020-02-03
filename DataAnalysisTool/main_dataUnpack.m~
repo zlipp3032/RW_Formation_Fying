@@ -252,6 +252,7 @@ function myPlots(agent,plt_stuff,data,di)
     leg_fig1 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g} + \delta_i$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig1,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
     
     
@@ -316,6 +317,7 @@ function myPlots(agent,plt_stuff,data,di)
     leg_fig2 = legend({'$p_1$','$p_2$','$p_3$','$p_{\rm g} + \dot{\delta}_i$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig2,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
 
 
     
@@ -332,12 +334,12 @@ function myPlots(agent,plt_stuff,data,di)
     
     
     
-    % Plot agent one's input
+    % Plot the agent's velocities
     fig3 = figure;
     subplot(3,1,1)
     plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_ux(data(1).index_form),'b','linewidth',plt_stuff.lval)
     hold on
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).acc_sgo(data(1).index_form,1),'r -.','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,1),'r','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{1}^{\rm T} u_1$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
@@ -349,7 +351,7 @@ function myPlots(agent,plt_stuff,data,di)
     subplot(3,1,2)
     plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_uy(data(1).index_form),'b','linewidth',plt_stuff.lval)
     hold on
-    plot(agent(1).time(plt_stuff.plot_index),agent(1).acc_sgo(data(1).index_form,2),'r -.','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,2),'r','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{2}^{\rm T} u_1$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
@@ -361,127 +363,17 @@ function myPlots(agent,plt_stuff,data,di)
     subplot(3,1,3)
     plot(agent(1).time(plt_stuff.plot_index),data(1).A.v1_uz(data(1).index_form),'b','linewidth',plt_stuff.lval)
     hold on
-	plot(agent(1).time(plt_stuff.plot_index),agent(1).acc_sgo(data(1).index_form,3),'r -.','linewidth',plt_stuff.lval)
+%     plot(agent(1).time(plt_stuff.plot_index),agent_vel_2(:,3),'r','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{3}^{\rm T} u_1$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
     xlim([startTime, endTime])
-    leg_fig3 = legend({'$u_1$','$\ddot{q}_{1,{\rm est}}$'},'orientation','horizontal'); % sets the legend entries to nothing
+    leg_fig3 = legend()
     legend boxoff
     set(leg_fig3,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    
-    % Plot agent two's input
-    fig4 = figure;
-    subplot(3,1,1)
-    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_ux(data(2).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-    plot(data(2).A.RelTime(data(2).index_form),agent(2).acc_sgo(data(2).index_form,1),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{1}^{\rm T} u_2$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
-    leg_dummy = legend(); % sets the legend entries to nothing
-    set(leg_dummy,'visible','off') % removes the legend from the plot
     set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
-    subplot(3,1,2)
-    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_uy(data(2).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-    plot(data(2).A.RelTime(data(2).index_form),agent(2).acc_sgo(data(2).index_form,2),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{2}^{\rm T} u_2$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
-    leg_dummy = legend(); % sets the legend entries to nothing
-    set(leg_dummy,'visible','off') % removes the legend from the plot
-    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
-    
-    subplot(3,1,3)
-    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_uz(data(2).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-	plot(data(2).A.RelTime(data(2).index_form),agent(2).acc_sgo(data(2).index_form,3),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{3}^{\rm T} u_2$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
-    leg_fig4 = legend({'$u_2$','$\ddot{q}_{2,{\rm est}}$'},'orientation','horizontal'); % sets the legend entries to nothing
-    legend boxoff
-    set(leg_fig4,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
 
-    
-    
-    
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    
-    % Plot agent two's input
-    fig5 = figure;
-    subplot(3,1,1)
-    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_ux(data(3).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-    plot(data(3).A.RelTime(data(3).index_form),agent(3).acc_sgo(data(3).index_form,1),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{1}^{\rm T} u_3$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
-    leg_dummy = legend(); % sets the legend entries to nothing
-    set(leg_dummy,'visible','off') % removes the legend from the plot
-    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
-    
-    subplot(3,1,2)
-    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_uy(data(3).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-    plot(data(3).A.RelTime(data(3).index_form),agent(3).acc_sgo(data(3).index_form,2),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{2}^{\rm T} u_3$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
-    leg_dummy = legend(); % sets the legend entries to nothing
-    set(leg_dummy,'visible','off') % removes the legend from the plot
-    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
-    
-    subplot(3,1,3)
-    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_uz(data(3).index_form),'b','linewidth',plt_stuff.lval)
-    hold on
-	plot(data(3).A.RelTime(data(3).index_form),agent(3).acc_sgo(data(3).index_form,3),'r -.','linewidth',plt_stuff.lval)
-    hold off
-    ylabel('$e_{3}^{\rm T} u_3$~(m/s$^2$)','interpreter','latex','FontSize',plt_stuff.fsize)
-    grid on
-    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
-    leg_fig5 = legend({'$u_3$','$\ddot{q}_{3,{\rm est}}$'},'orientation','horizontal'); % sets the legend entries to nothing
-    legend boxoff
-    set(leg_fig5,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
-    
-    
-    
     
     
     
