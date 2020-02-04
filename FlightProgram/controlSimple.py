@@ -642,12 +642,16 @@ class Controller(threading.Thread):
     def updateControlState(self,pi,pk,uk,accPosError,Ts):
         config = self.vehicleState.parameters.config
         gains = self.vehicleState.parameters.gains
+	vd = self.computeMidPDControl(uk,pk,pi)
         self.vehicleState.accumulator['intXPosError'] = accPosError[0,0]
         self.vehicleState.accumulator['intYPosError'] = accPosError[1,0]
         self.vehicleState.accumulator['intZPosError'] = accPosError[2,0]
         self.vehicleState.controlState['vx_des'] = pk[0,0]
         self.vehicleState.controlState['vy_des'] = pk[1,0]
         self.vehicleState.controlState['vz_des'] = pk[2,0]
+	self.vehicleState.controlState['vx_hat'] = vd[0,0]
+	self.vehicleState.controlState['vy_hat'] = vd[1,0]
+	self.vehicleState.controlState['vz_hat'] = vd[2,0]
         self.vehicleState.controlState['ux_des'] = uk[0,0]
         self.vehicleState.controlState['uy_des'] = uk[1,0]
         self.vehicleState.controlState['uz_des'] = uk[2,0]
@@ -696,6 +700,8 @@ class Controller(threading.Thread):
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
 	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
+	# Send a velocity command from middle-loop "PD" controller
+	#self.send_ned_velocity(self.vehicleState.controlState['vx_hat'],self.vehicleState.controlState['vy_hat'],self.vehicleState.controlState['vz_des'],1)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
@@ -703,6 +709,14 @@ class Controller(threading.Thread):
 	#	#print('hello')
         #	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
 
+
+   def computeMidPDControl(self,ud,pd,p)
+	gains = self.vehicleState.parameters.gains
+	# Compute the velocity error
+	vel_term = gains['kv_mid']*(pd - p)
+	ff_term = gains['ku_mid']*ud
+	val = ff_term + vel_term
+	reutrn val
 
     def controlFunction(self,delta):
 	#! Linear Control
