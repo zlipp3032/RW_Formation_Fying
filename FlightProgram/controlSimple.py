@@ -338,9 +338,6 @@ class Controller(threading.Thread):
         self.vehicleState.channels['yaw'] = self.vehicle.channels['4']
         self.vehicleState.droneState['battVolt'] = self.vehicle.battery.voltage
         self.vehicleState.timestamp = self.vehicle.location.global_relative_frame.time
-	#! Low pass the z velocity
-	self.vehicleState.low_pass['zVel_lp_prev'] = self.vehicleState.low_pass['zVel_lp']
-	self.vehicleState.low_pass['zVel_lp'] = self.low_pass(self.vehicleState.velocity['vz'],self.vehicleState.low_pass['zVel_lp_prev'],0.7)
 
     def updateGlobalStateWithData(self,ID,msg):
         self.vehicleState.flightSeq = msg.content['flightSeq']
@@ -501,9 +498,6 @@ class Controller(threading.Thread):
 	temp_dq = self.controlFunction(dq)
 	temp_dp = self.controlFunction(dp)
         uk = ug + np.dot(kp,temp_dq) + np.dot(kd,temp_dp) + np.dot(ki,accPosError)
-	#! Low Pass the control
-	self.vehicleState.low_pass['uz_lp_prev'] = self.vehicleState.low_pass['uz_lp']
-	self.vehicleState.low_pass['uz_lp'] = self.low_pass(uk[2,0],self.vehicleState.low_pass['uz_lp_prev'],0.7)
 	# Add the collision avoidance term
 	#avoid,scale = self.collisionAvoidance(qi,pi,Ts,ID)
 	#uk = np.dot(scale,uk) + avoid
@@ -514,9 +508,6 @@ class Controller(threading.Thread):
 	#temp1 = (uk + ukp)/2.0
         #temp2 = Ts*temp1
         pk = pkp + np.dot(Ts,uk)
-	#! Low pass the velocity input
-	self.vehicleState.low_pass['vz_des_lp_prev'] = self.vehicleState.low_pass['vz_des_lp']
-	self.vehicleState.low_pass['vz_des_lp'] = self.low_pass(pk[2,0],self.vehicleState.low_pass['vz_des_lp_prev'],0.7)
         self.updateControlState(pi,pk,uk,accPosError,Ts)
         #print(accPosError)
         
@@ -704,9 +695,7 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	#self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
-	# Send a attitude and fractional thrust command uing MAV link
-	self.send_attitude_target(self.vehicleState.controlState['roll'],self.vehicleState.controlState['pitch'],None,0.0,False,0.5)
+	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
@@ -889,10 +878,6 @@ class Controller(threading.Thread):
 	return np.matrix([[dx], [dy],[dz]])
 
 
-    def low_pass(self,state,lp_prev,filt):
-	output = filt*lp_prev + (1-filt)*state
-	return output
-
 
     # Velocity commands with respect to home location directionally
     # Be sure tp set up the home location and know your bearings; update the table below before you fly
@@ -921,87 +906,6 @@ class Controller(threading.Thread):
         #for x in range(0,duration):
             #self.vehicle.send_mavlink(msg)
             #time.sleep(self.rigidBodyState.parameters.Ts)
-
-    def send_attitude_target(self,roll_angle = 0.0, pitch_angle = 0.0,
-                         yaw_angle = None, yaw_rate = 0.0, use_yaw_rate = False,
-                         thrust = 0.5):
-	#"""
-	#use_yaw_rate: the yaw can be controlled using yaw_angle OR yaw_rate.
-        #          When one is used, the other is ignored by Ardupilot.
-	#thrust: 0 <= thrust <= 1, as a fraction of maximum vertical thrust.
-        #    Note that as of Copter 3.5, thrust = 0.5 triggers a special case in
-        #    the code for maintaining current altitude.
-	#"""
-	if yaw_angle is None:
-    	    # this value may be unused by the vehicle, depending on use_yaw_rate
-            yaw_angle = self.vehicle.attitude.yaw
-	# Thrust >  0.5: Ascend
-	# Thrust == 0.5: Hold the altitude
-	# Thrust <  0.5: Descend
-	msg = self.vehicle.message_factory.set_attitude_target_encode(
-	    0, # time_boot_ms
-            1, # Target system
-            1, # Target component
-            0b00000000 if use_yaw_rate else 0b00000100,
-            self.to_quaternion(roll_angle, pitch_angle, yaw_angle), # Quaternion
-            0, # Body roll rate in radian
-            0, # Body pitch rate in radian
-            m.radians(yaw_rate), # Body yaw rate in radian/second
-            thrust  # Thrust
-            )
-	self.vehicle.send_mavlink(msg)
-
-
-
-
-    def to_quaternion(self,roll = 0.0, pitch = 0.0, yaw = 0.0):
-	#"""
-	#Convert degrees to quaternions
-	#"""
-	t0 = m.cos(m.radians(yaw * 0.5))
-	t1 = m.sin(m.radians(yaw * 0.5))
-	t2 = m.cos(m.radians(roll * 0.5))
-	t3 = m.sin(m.radians(roll * 0.5))
-	t4 = m.cos(m.radians(pitch * 0.5))
-	t5 = m.sin(m.radians(pitch * 0.5))
-
-	w = t0 * t2 * t4 + t1 * t3 * t5
-	x = t0 * t3 * t4 - t1 * t2 * t5
-	y = t0 * t2 * t5 + t1 * t3 * t4
-	z = t1 * t2 * t4 - t0 * t3 * t5
-
-	return [w, x, y, z]
-
-
-
-
-
-    def set_attitude(self,roll_angle = 0.0, pitch_angle = 0.0,
-                 yaw_angle = None, yaw_rate = 0.0, use_yaw_rate = False,
-                 thrust = 0.5, duration = 0):
-	"""
-	Note that from AC3.3 the message should be re-sent more often than every
-	second, as an ATTITUDE_TARGET order has a timeout of 1s.
-	In AC3.2.1 and earlier the specified attitude persists until it is canceled.
-	The code below should work on either version.
-	Sending the message multiple times is the recommended way.
-	"""
-	send_attitude_target(roll_angle, pitch_angle,
-                         yaw_angle, yaw_rate, False,
-                         thrust)
-	start = time.time()
-	while time.time() - start < duration:
-	    send_attitude_target(roll_angle, pitch_angle,
-                             yaw_angle, yaw_rate, False,
-                             thrust)
-            time.sleep(0.1)
-	# Reset attitude, or it will persist for 1s more due to the timeout
-	send_attitude_target(0, 0,
-                         0, 0, True,
-                         thrust)
-
-
-
 
 
     def arm_and_takeoff(self,aTargetAltitude):

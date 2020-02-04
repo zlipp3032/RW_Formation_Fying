@@ -9,8 +9,8 @@ def getParams():
     defaultParams.IP = '192.168.2.3'
     defaultParams.receivedTime = time.time()
     defaultParams.Ts = 0.1
-    defaultParams.expectedMAVs = 1
-    defaultParams.ID = 1
+    defaultParams.expectedMAVs = 3
+    defaultParams.ID = 3
     defaultParams.isComplete = True
     defaultParams.GPSTimeout = 1.0
     defaultParams.txStateType = 'basic'
@@ -23,9 +23,9 @@ def getParams():
                            'kpy': 0.3, 'kdy': 1.3, 'kiy': 0, # PID gains
                            'kpz': 0.8, 'kdz': 1.8, 'kiz': 0, # PID gains
                            'ku_vel_form': 1.75, 'kv_vel_form': 1.75, 'kw_vel_form': 1.5, # Middle-Loop velocity controller gains for the Formation controller
-                           'alpha12': 0.15, 'beta12': 0.8, 'gammaX': 0.0, 'etaX': 0.0, # R2T gains
-			   'alpha23': 0.15, 'beta23': 0.8, 'gammaY': 0.0, 'etaY': 0.0, # R2T gains
-			   'alphaZ': 0.0, 'betaZ': 0.0, 'gammaZ': 0.75, 'etaZ': 1.75, # R2T gains
+                           'alpha12': 0.08, 'beta12': 0.55, 'gammaX': 0.0, 'etaX': 0.0, # R2T gains
+			   'alpha23': 0.01, 'beta23': 0.1, 'gammaY': 0.0, 'etaY': 0.0, # R2T gains
+			   'alphaZ': 0.08, 'betaZ': 0.55, 'gammaZ': 0.0, 'etaZ': 0.0, # R2T gains
 			   'alpha1': 0.001, 'alpha2': 0.09, # << Flocking gains
                            'beta': 0.25, # Flocking gains
                            'gamma1': 0.3, 'gamma2': 1.2, 'gamma3': 0.3, 'gamma4': 1.3, # Flocking gains
@@ -36,7 +36,7 @@ def getParams():
 			    'yawLimit': 1.0, # Used in the PWM scaling function (this is the yaw rate limit)
                             'stoppingDistance': 0.2, # Used to switch velocity computation in potential function
                             'desiredSpeed': -0.01, # Desired speed in velocity potential function
-                            'targetAltitude': 1.0, # Target altitude on takeoff
+                            'targetAltitude': 4.0, # Target altitude on takeoff
 			    'collision_radius': 1.0, # Minimum distance to determine if you agent is in the repulsion set
                             'quadMass': 1.67,
 #			    'quadMass': 1.77,
