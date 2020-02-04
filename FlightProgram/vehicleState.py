@@ -105,7 +105,7 @@ class FullVehicleState(BasicVehicleState):
         self.attitude = {'roll': 0.0, 'pitch': 0.0, 'yaw': 0.0, 'roll_prev': 0.0, 'pitch_prev': 0.0, 'yaw_prev': 0.0, 'roll_rate': 0.0, 'pitch_rate': 0.0, 'yaw_rate': 0.0, 'time': None, 'rel_time': 0.0, 'prev_time': 0.0}
         self.initPos = {'x': None, 'y': None, 'z': None, 'lat': None, 'lon': None, 'alt': None}
         self.accumulator = {'intXPosError': 0.0, 'intYPosError': 0.0, 'intZPosError': 0.0, 'intZVelError': 0.0}
-        self.controlState = {'vx_des': 0.0, 'vy_des': 0.0, 'vz_des': 0.0, 'ux_des': 0.0, 'uy_des': 0.0, 'uz_des': 0.0,
+        self.controlState = {'vx_des': 0.0, 'vy_des': 0.0, 'vz_des': 0.0, 'ux_des': 0.0, 'uy_des': 0.0, 'uz_des': 0.0, 'vx_hat': 0.0, 'vy_hat': 0.0, 'vz_hat': 0.0,
                                  'thrust': 0.0, 'roll': 0.0, 'pitch': 0.0, 'yaw_rate': 0.0, 'lin_thrust': 0.0, 'lin_roll': 0.0, 'lin_pitch': 0.0,
 				 'roll_PWM': None, 'pitch_PWM': None,'throttle_PWM': None, 'yaw_rate_PWM': None}
         self.droneState = {'battVolt': None}
@@ -162,6 +162,9 @@ class FullVehicleState(BasicVehicleState):
 
         headers += ['vx_des','vy_des','vz_des','ux','uy','uz']
         values += [self.controlState['vx_des'], self.controlState['vy_des'], self.controlState['vz_des'], self.controlState['ux_des'], self.controlState['uy_des'], self.controlState['uz_des']]  
+
+	headers += ['vx_hat', 'vy_hat', 'vz_hat']
+	values += [self.controlState['vx_hat'],self.controlState['vy_hat'],self.controlState['vz_hat']]
 
         headers += ['thrust_des','roll_des','pitch_des','yaw_rate_des']
         values += [self.controlState['thrust'], self.controlState['roll'], self.controlState['pitch'],self.controlState['yaw_rate']]
