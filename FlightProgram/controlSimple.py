@@ -710,13 +710,14 @@ class Controller(threading.Thread):
         #	self.vehicle.channels.overrides = {'1': self.vehicleState.controlState['roll_PWM'], '2': self.vehicleState.controlState['pitch_PWM'], '3':self.vehicleState.controlState['throttle_PWM'], '4':self.vehicleState.controlState['yaw_rate_PWM']}
 
 
-   def computeMidPDControl(self,ud,pd,p)
+    def computeMidPDControl(self,ud,pd,p):
 	gains = self.vehicleState.parameters.gains
 	# Compute the velocity error
 	vel_term = gains['kv_mid']*(pd - p)
+	# Compute the feedforward term
 	ff_term = gains['ku_mid']*ud
 	val = ff_term + vel_term
-	reutrn val
+	return val
 
     def controlFunction(self,delta):
 	#! Linear Control
