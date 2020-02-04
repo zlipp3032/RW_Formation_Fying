@@ -191,6 +191,11 @@ function myPlots(agent,plt_stuff,data,di)
         agent_pos_3(i,:) = lla2flat([agent(1).pos_3(plt_stuff.plot_index(i),1),agent(1).pos_3(plt_stuff.plot_index(i),2),agent(1).pos_3(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
         lead_pos(i,:) = lla2flat([agent(1).leader_pos(plt_stuff.plot_index(i),1),agent(1).leader_pos(plt_stuff.plot_index(i),2),agent(1).leader_pos(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
 
+        
+        
+        
+        
+        
     end
     
     ones_mat = ones(length(agent(1).time(plt_stuff.plot_index)),3);
