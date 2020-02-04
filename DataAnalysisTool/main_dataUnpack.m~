@@ -192,11 +192,19 @@ function myPlots(agent,plt_stuff,data,di)
         lead_pos(i,:) = lla2flat([agent(1).leader_pos(plt_stuff.plot_index(i),1),agent(1).leader_pos(plt_stuff.plot_index(i),2),agent(1).leader_pos(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
 
         
-        
-        
-        
+        % Look at potential velocity controller
+        kp = 10;
+        vd(i,:) = kp.*([data(1).A.v1_vx_des(data(1).index_form(i)), data(1).A.v1_vy_des(data(1).index_form(i)), data(1).A.v1_vz_des(data(1).index_form(i))] - agent_vel_1(i,:));
         
     end
+    
+    
+    
+    
+    
+    
+    
+    break
     
     ones_mat = ones(length(agent(1).time(plt_stuff.plot_index)),3);
     

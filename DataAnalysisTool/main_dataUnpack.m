@@ -191,7 +191,46 @@ function myPlots(agent,plt_stuff,data,di)
         agent_pos_3(i,:) = lla2flat([agent(1).pos_3(plt_stuff.plot_index(i),1),agent(1).pos_3(plt_stuff.plot_index(i),2),agent(1).pos_3(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
         lead_pos(i,:) = lla2flat([agent(1).leader_pos(plt_stuff.plot_index(i),1),agent(1).leader_pos(plt_stuff.plot_index(i),2),agent(1).leader_pos(plt_stuff.plot_index(i),3)],[data(1).A.v1_lead_lat(plt_stuff.plot_index(i)) data(1).A.v1_lead_lon(plt_stuff.plot_index(i))],0,0);
 
+        
+        % Look at potential velocity controller
+        kp = 0.8;
+        vd(i,:) = kp.*([data(1).A.v1_vx_des(data(1).index_form(i)), data(1).A.v1_vy_des(data(1).index_form(i)), data(1).A.v1_vz_des(data(1).index_form(i))] - agent_vel_1(i,:));
+        
     end
+    
+    
+    
+    figure
+    subplot(3,1,1)
+    plot(vd(:,1),'b')
+    hold on
+    plot(data(1).A.v1_ux(data(1).index_form),'r')
+    plot(data(1).A.v1_vx_des(data(1).index_form),'c')
+    plot(agent_vel_1(:,1),'g')
+    hold off
+    grid on
+    
+    subplot(3,1,2)
+    plot(vd(:,2),'b')
+    hold on
+    plot(data(1).A.v1_uy(data(1).index_form),'r')
+    plot(data(1).A.v1_vy_des(data(1).index_form),'c')
+    plot(agent_vel_1(:,2),'g')
+    hold off
+    grid on
+    
+    subplot(3,1,3)
+    plot(vd(:,3),'b')
+    hold on
+    plot(data(1).A.v1_uz(data(1).index_form),'r')
+    plot(data(1).A.v1_vz_des(data(1).index_form),'c')
+    plot(agent_vel_1(:,3),'g')
+    hold off
+    grid on
+    
+    
+    
+    
     
     ones_mat = ones(length(agent(1).time(plt_stuff.plot_index)),3);
     
