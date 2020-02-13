@@ -1,4 +1,4 @@
-function plotPositionAndVelocity(agent,plt_stuff)
+function plotPositionAndVelocity(agent,plt_stuff,data)
 
 disp('Plotting Position and Velocity')
 

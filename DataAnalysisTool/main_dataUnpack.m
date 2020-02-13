@@ -13,7 +13,7 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Prescribe path to the data files
 path = '/Users/Zack/Documents/Experiments/Data/Outdoor/';
-test = 'Outdoor_013020/';
+test = 'Outdoor_021320/';
 
 % path = '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Outdoor/ArduPilotLogAnalysis/FlightLogs_v06/';
 % test = '';
@@ -21,7 +21,7 @@ test = 'Outdoor_013020/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_08__04_18_19_log_v1';
+data(1).file = '2020_01_21__13_42_56_log_v1';
 data(2).file = '2019_09_07__12_54_44_log_v2';
 data(3).file = '2020_01_21__11_17_10_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,11 +43,11 @@ target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define the plot Sequence ---> boolean operator(e.g., true = 1 and false = 0)
 plt_stuff = struct;
-plt_stuff.plot_single = 0;
+plt_stuff.plot_single = 1;
 plt_stuff.plot_double = 0;
 plt_stuff.plot_triple = 0;
 
-plt_stuff.plot_sequence = 2; %0: Whole flight; 1: Virtual Leader; 2: Formation Control
+plt_stuff.plot_sequence = 1; %0: Whole flight; 1: Virtual Leader; 2: Formation Control
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set the figure file name and figure path
@@ -169,7 +169,39 @@ end
 disp('End main.')
 
 %% Extra Plotting sequence
-myPlots(agent,plt_stuff,data,target_vectors)
+% myPlots(agent,plt_stuff,data,target_vectors)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
