@@ -21,7 +21,7 @@ test = 'Outdoor_021320/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2020_01_21__13_42_56_log_v1';
+data(1).file = '2020_01_21__14_22_11_log_v1';
 data(2).file = '2019_09_07__12_54_44_log_v2';
 data(3).file = '2020_01_21__11_17_10_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,7 +43,7 @@ target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define the plot Sequence ---> boolean operator(e.g., true = 1 and false = 0)
 plt_stuff = struct;
-plt_stuff.plot_single = 1;
+plt_stuff.plot_single = 0;
 plt_stuff.plot_double = 0;
 plt_stuff.plot_triple = 0;
 
@@ -170,6 +170,126 @@ disp('End main.')
 
 %% Extra Plotting sequence
 % myPlots(agent,plt_stuff,data,target_vectors)
+
+myPlots_mid_test(plt_stuff,data)
+
+function myPlots_mid_test(plt_stuff,data)
+    
+    index = data(1).index_virt;
+    
+    startTime = data(1).A.RelTime(index(1));
+    endTime = 67;%data(1).A.RelTime(index(end));
+    
+    
+    for i = 1:length(index)
+        agent_pos_1(i,:) = lla2flat([data(1).A.v1_lat(index(i)),data(1).A.v1_lon(index(i)),data(1).A.v1_zPos(index(i))],[data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i))],0,0);
+        
+        lead_pos(i,:) = lla2flat([data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i)),data(1).A.v1_leadZPos(index(i))],[data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i))],0,0);
+        
+       
+    end
+    
+    
+    
+    
+    
+    figure
+    subplot(3,1,1)
+    plot(data(1).A.RelTime(index),agent_pos_1(:,1),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(data(1).A.RelTime(index),lead_pos(:,1),'k --','linewidth',plt_stuff.lval)
+%     hold off
+    xlim([startTime endTime])
+    ylabel('$e_{1}^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,2)
+    plot(data(1).A.RelTime(index),agent_pos_1(:,2),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(data(1).A.RelTime(index),lead_pos(:,2),'k --','linewidth',plt_stuff.lval)
+%     hold off
+    xlim([startTime endTime])
+    ylabel('$e_{2}^{\rm T} q_i $~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(data(1).A.RelTime(index),-agent_pos_1(:,3),'b','linewidth',plt_stuff.lval)
+%     hold on
+%     plot(data(1).A.RelTime(index),-lead_pos(:,3),'k --','linewidth',plt_stuff.lval)
+%     hold off
+    xlim([startTime endTime])
+    ylabel('$e_{3}^{\rm T} q_i $~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+%     leggy = legend({'$q$','$q_{\rm g}$'},'orientation','horizontal'); % sets the legend entries to nothing
+%     legend boxoff
+%     set(leggy,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    
+    
+    
+    
+    figure
+    subplot(3,1,1)
+    plot(data(1).A.RelTime(index),data(1).A.v1_xVel(index),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(data(1).A.RelTime(index),data(1).A.v1_vx_des(index),'r','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v1_vx_hat(index),'c-.','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v1_leadXVel(index),'k --','linewidth',plt_stuff.lval)
+    hold off
+    xlim([startTime endTime])
+    ylabel('$e_{1}^{\rm T} p_i$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,2)
+    plot(data(1).A.RelTime(index),data(1).A.v1_yVel(index),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(data(1).A.RelTime(index),data(1).A.v1_vy_des(index),'r','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v1_vy_hat(index),'c-.','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v1_leadYVel(index),'k --','linewidth',plt_stuff.lval)
+    hold off
+    xlim([startTime endTime])
+    ylabel('$e_{2}^{\rm T} p_i $~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leg_dummy = legend(); % sets the legend entries to nothing
+    set(leg_dummy,'visible','off') % removes the legend from the plot
+    set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
+    
+    subplot(3,1,3)
+    plot(data(1).A.RelTime(index),data(1).A.v1_zVel(index),'b','linewidth',plt_stuff.lval)
+    hold on
+    plot(data(1).A.RelTime(index),data(1).A.v1_vz_des(index),'r','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v1_vz_hat(index),'c-.','linewidth',plt_stuff.lval)
+%     plot(0,0,'c-.')
+%     plot(data(1).A.RelTime(index),data(1).A.v1_leadZVel(index),'k --','linewidth',plt_stuff.lval)
+    hold off
+    ylabel('$e_{3}^{\rm T} p_i $~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    xlim([startTime, endTime])
+    leggy = legend({'$p$','$v_d$'},'orientation','horizontal'); % sets the legend entries to nothing
+    legend boxoff
+    set(leggy,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
+    
+
+
+
+
+end
+
 
 
 
