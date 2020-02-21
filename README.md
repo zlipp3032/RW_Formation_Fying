@@ -4,4 +4,4 @@ This flight program for formation flying with rotorcraft who utilized arducopter
 
 This flight program uses a modified version of dronekit-python to interface with the flight controller
 
-Requires 'test' branch of Chris' version of dronekit 
+Requires 'RW_Form_Lipp_Version' branch of dronekit in my repositories
