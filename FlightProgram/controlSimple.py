@@ -508,7 +508,7 @@ class Controller(threading.Thread):
 	#temp1 = (uk + ukp)/2.0
         #temp2 = Ts*temp1
         pk = pkp + np.dot(Ts,uk)
-        self.updateControlState(pi,pk,uk,accPosError,Ts)
+        self.updateControlState(pi,pk,pkp,uk,accPosError,Ts)
         #print(accPosError)
         
 
@@ -606,7 +606,7 @@ class Controller(threading.Thread):
 	### Esitmate the desired velocity ###
 	pkp = np.matrix([[self.vehicleState.controlState['vx_des']],[self.vehicleState.controlState['vy_des']],[self.vehicleState.controlState['vz_des']]])
         pk = pkp + np.dot(Ts,uk)
-        self.updateControlState(pi,pk,uk,accPosError,Ts)
+        self.updateControlState(pi,pk,pkp,uk,accPosError,Ts)
 
     def collisionAvoidance(self,qi,pi,Ts,ID):
 	MAVs = self.vehicleState.parameters.expectedMAVs + 1
@@ -639,10 +639,14 @@ class Controller(threading.Thread):
 	self.vehicleState.avoid['uz'] = ui[2,0]
 	return ui,scale
 
-    def updateControlState(self,pi,pk,uk,accPosError,Ts):
+    def updateControlState(self,pi,pk,pkp,uk,accPosError,Ts):
         config = self.vehicleState.parameters.config
         gains = self.vehicleState.parameters.gains
-	vd = self.computeMidPDControl(uk,pk,pi)
+	# Setup the vectors for the middle-loop low pass
+	pi_prev = np.matrix([[self.vehicleState.previousState['vx']],[self.vehicleState.previousState['vy']],[self.vehicleState.previousState['vz']]])
+	vd_prev = np.matrix([[self.vehicleState.controlState['vx_hat']],[self.vehicleState.controlState['vy_hat']],[self.vehicleState.controlState['vz_hat']]])
+	vd = self.computeMidLowPass(vd_prev,pkp,pi_prev)
+	#vd = self.computeMidPDControl(uk,pk,pi)
         self.vehicleState.accumulator['intXPosError'] = accPosError[0,0]
         self.vehicleState.accumulator['intYPosError'] = accPosError[1,0]
         self.vehicleState.accumulator['intZPosError'] = accPosError[2,0]
@@ -655,6 +659,9 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['ux_des'] = uk[0,0]
         self.vehicleState.controlState['uy_des'] = uk[1,0]
         self.vehicleState.controlState['uz_des'] = uk[2,0]
+	self.vehicleState.previousState['vx'] = pi[0,0]
+	self.vehicleState.previousState['vy'] = pi[1,0]
+	self.vehicleState.previousState['vz'] = pi[2,0]
 	if(not self.vehicleState.parameters.config['isFormation']):
 	    ku = gains['ku_vel_pid']
 	    kv = gains['kv_vel_pid']
@@ -699,9 +706,9 @@ class Controller(threading.Thread):
         self.vehicleState.controlState['throttle_PWM'] = self.saturate(THROTTLE,1000,2000)
 	self.vehicleState.controlState['yaw_rate_PWM'] = self.saturate(YAW,1000,2000)
 	# Send a velocity command using MAV link
-	self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
+	#self.send_ned_velocity(self.vehicleState.controlState['vx_des'],self.vehicleState.controlState['vy_des'],self.vehicleState.controlState['vz_des'],1)
 	# Send a velocity command from middle-loop "PD" controller
-	#self.send_ned_velocity(self.vehicleState.controlState['vx_hat'],self.vehicleState.controlState['vy_hat'],self.vehicleState.controlState['vz_des'],1)
+	self.send_ned_velocity(self.vehicleState.controlState['vx_hat'],self.vehicleState.controlState['vy_hat'],self.vehicleState.controlState['vz_des'],1)
 	print 'Mav Msg Sent.'
 	#if (not self.vehicleState.attitude['time'] == self.vehicleState.attitude['prev_time']):
 	#if( True):
@@ -714,9 +721,22 @@ class Controller(threading.Thread):
 	gains = self.vehicleState.parameters.gains
 	# Compute the velocity error
 	vel_term = gains['kv_mid']*(pd - p)
-	# Compute the feedforward term
 	ff_term = gains['ku_mid']*ud
 	val = ff_term + vel_term
+	return val
+
+    def computeMidLowPass(self,val_prev,pd,p):
+	# If k0 = 0 && k1 = 0.32 ---> then this is a standard low pass filter (e.g., no feed-forward and no extra weight on the desired state)
+	# If k0 > 0, k1 = 0.32 ---> then this is a low pass filter with a bit of feed-forward (e.g., no extra emphasis on desired state)
+	# Note: gamma = exp(-wc*Ts) ---> wc = cutoff frequency, Ts = sample time
+	gains = self.vehicleState.parameters.gains
+	# Compute the velocity error
+	a_term = 1 + gains['k0_lp_mid']/gains['k1_lp_mid']
+	vel_error = a_term*pd - p
+	# Compute the first-order low pass filter
+	temp_term = gains['k1_lp_mid']/0.32
+	b_term = temp_term*(1 - gains['gamma_mid'])
+	val = b_term * vel_error + gains['gamma_mid'] * val_prev
 	return val
 
     def controlFunction(self,delta):

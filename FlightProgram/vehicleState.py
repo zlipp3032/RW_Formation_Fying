@@ -109,6 +109,7 @@ class FullVehicleState(BasicVehicleState):
                                  'thrust': 0.0, 'roll': 0.0, 'pitch': 0.0, 'yaw_rate': 0.0, 'lin_thrust': 0.0, 'lin_roll': 0.0, 'lin_pitch': 0.0,
 				 'roll_PWM': None, 'pitch_PWM': None,'throttle_PWM': None, 'yaw_rate_PWM': None}
         self.droneState = {'battVolt': None}
+	self.previousState = {'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'vx_des': 0.0, 'vy_des': 0.0, 'vz_des': 0.0, 'vx_hat': 0.0, 'vy_hat': 0.0, 'vz_hat': 0.0}
 	self.channels = {'roll': None, 'pitch': None, 'throttle': None, 'yaw': None}
 	self.avoid = {'ux': 0.0, 'uy': 0.0, 'uz':0.0}
 	self.flightSeq = 0
