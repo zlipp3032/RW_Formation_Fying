@@ -16,7 +16,7 @@ def getParams():
     defaultParams.txStateType = 'basic'
     #defaultParams.desiredPosition = np.array([[-1],[-0.5],[0]])
     defaultParams.gains = {'intGain': 0.2, 'velGain': 0.1, 'attRate': 0.2, 'yawP': 1.0, 'mid_loop_converge': 0.01, 'att_settle_time': 7.0, 'mid_vel_scale': 1500.0, 'kv_mid': 1.0, 'ku_mid': 0.08,
-			   'k0_lp_mid': 0.0, 'k1_lp_mid': 0.75, 'gamma_mid': 0.9685, # Middle loop low pass gains
+			   'k0_lp_mid': 2.0, 'k1_lp_mid': 0.1, 'cutoff_mid': 5, # Middle loop low pass parameters
 			   'leadAttGain': 0.5, 'leadVelGain': 0.2, # Used to smooth leader estimates
 			   'ca1': 0.001, 'ca2': 1.2, 'ca_vel': 0.4, # Collision avoidance gains
 			   'ku_vel_pid': 2.5, 'kv_vel_pid': 2.5, 'kw_vel_pid': 1.5, # Middle-loop velocity controller gains for the PID controller
