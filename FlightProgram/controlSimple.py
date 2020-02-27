@@ -730,7 +730,7 @@ class Controller(threading.Thread):
 	# If k0 = wc && k1 = 0 ---> then this is a low pass filter on the desired velocity input (e.g., no emphasis on the feedback error)
 	# Note: gamma = exp(-wc*Ts) ---> wc = cutoff frequency, Ts = sample time
 	gains = self.vehicleState.parameters.gains
-	gamma_mid = np.exp(-gains['cutoff_mid']*0.1)
+	gamma_mid = round(np.exp(-gains['cutoff_mid']*0.1),4)
 	filter_weight = (1 - gamma_mid) / gains['cutoff_mid']
 	# Compute the feedback term
 	vel_error = gains['k1_lp_mid'] * (pd - p)
