@@ -21,7 +21,7 @@ test = 'Outdoor_022120/';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2020_01_21__20_00_03_log_v1';
+data(1).file = '2020_01_21__19_10_46_log_v3';
 data(2).file = '2019_09_07__12_54_44_log_v2';
 data(3).file = '2020_01_21__11_17_10_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,10 +74,10 @@ try
 %     data(1).dataPath = [path test 'Agent1/' data(1).file '.csv'];
     data(1).dataPath = [path test 'Agent1/' data(1).file '.csv'];
     data(1).A = readtable(data(1).dataPath);
-    data(1).index = find(data(1).A.v1_flightSequence > 0);
-    data(1).index_form = find(data(1).A.v1_flightSequence == 6);
-    data(1).index_virt = find(data(1).A.v1_flightSequence == 5);
-    data(1).index_rtl = find(data(1).A.v1_flightSequence == 4);
+    data(1).index = find(data(1).A.v3_flightSequence > 0);
+    data(1).index_form = find(data(1).A.v3_flightSequence == 6);
+    data(1).index_virt = find(data(1).A.v3_flightSequence == 5);
+    data(1).index_rtl = find(data(1).A.v3_flightSequence == 4);
 catch
     disp('No vehicle 1 data file.')
     data(1).A = 0;
@@ -135,19 +135,19 @@ disp('Initiate Plotting Sequence')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the index for which you want to plot
 
-switch plt_stuff.plot_sequence
-    case 0
-        plt_stuff.plot_index = agent(1).index;
-    case 1
-        plt_stuff.plot_index = agent(1).index_virt;
-    case 2
-        plt_stuff.plot_index = agent(1).index_form;
-    otherwise
-        disp('Pick new plotting sequence.')
-        disp('0: Whole flight')
-        disp('1: Virtual Leader')
-        disp('2: Formation Control')
-end
+% switch plt_stuff.plot_sequence
+%     case 0
+%         plt_stuff.plot_index = agent(1).index;
+%     case 1
+%         plt_stuff.plot_index = agent(1).index_virt;
+%     case 2
+%         plt_stuff.plot_index = agent(1).index_form;
+%     otherwise
+%         disp('Pick new plotting sequence.')
+%         disp('0: Whole flight')
+%         disp('1: Virtual Leader')
+%         disp('2: Formation Control')
+% end
 
       
 
@@ -187,30 +187,13 @@ function myPlots_mid_test(plt_stuff,data)
     
     
     for i = 1:length(index)
-        agent_pos_1(i,:) = lla2flat([data(1).A.v1_lat(index(i)),data(1).A.v1_lon(index(i)),data(1).A.v1_zPos(index(i))],[data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i))],0,0);
+        agent_pos_1(i,:) = lla2flat([data(1).A.v3_lat(index(i)),data(1).A.v3_lon(index(i)),data(1).A.v3_zPos(index(i))],[data(1).A.v3_lead_lat(index(i)) data(1).A.v3_lead_lon(index(i))],0,0);
         
-        lead_pos(i,:) = lla2flat([data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i)),data(1).A.v1_leadZPos(index(i))],[data(1).A.v1_lead_lat(index(i)) data(1).A.v1_lead_lon(index(i))],0,0);
-        lead_pos(i,:) = lead_pos(i,:) + [data(1).A.v1_leadXPos(index(i)),data(1).A.v1_leadYPos(index(i)),0];
+        lead_pos(i,:) = lla2flat([data(1).A.v3_lead_lat(index(i)) data(1).A.v3_lead_lon(index(i)),data(1).A.v3_leadZPos(index(i))],[data(1).A.v3_lead_lat(index(i)) data(1).A.v3_lead_lon(index(i))],0,0);
+        lead_pos(i,:) = lead_pos(i,:) + [data(1).A.v3_leadXPos(index(i)),data(1).A.v3_leadYPos(index(i)),0];
        
     end
-    
-%     error =  agent_pos_1 - lead_pos;
-%     error_vel = [data(1).A.v1_xVel(index),data(1).A.v1_yVel(index),data(1).A.v1_zVel(index)] - [data(1).A.v1_leadXVel(index),data(1).A.v1_leadYVel(index),data(1).A.v1_leadZVel(index)];
-    
-    
-%     index_cost = find(data(1).A.RelTime(index) > 30);
-%     tempdex_cost = find(data(1).A.RelTime(index(index_cost)) < 68.55);
-    
-    
-%     figure
-%     plot(data(1).A.RelTime(index),agent_pos_1(:,1))
-%     hold on
-%     plot(data(1).A.RelTime(index(index_cost)),agent_pos_1(index_cost,1),'r --')
-    
-    
-    
-%     Cost_pos = (1/2)*sum(error(index_cost(tempdex_cost),:).^2,1)/length(index_cost(tempdex_cost))
-%     Cost_vel = (1/2)*sum(error_vel(index_cost(tempdex_cost),:).^2,1)/length(index_cost(tempdex_cost))
+
     
     
     
@@ -264,11 +247,11 @@ function myPlots_mid_test(plt_stuff,data)
     
     figure
     subplot(3,1,1)
-    plot(data(1).A.RelTime(index),data(1).A.v1_xVel(index),'b','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_xVel(index),'b','linewidth',plt_stuff.lval)
     hold on
-    plot(data(1).A.RelTime(index),data(1).A.v1_vx_des(index),'r','linewidth',plt_stuff.lval)
-    plot(data(1).A.RelTime(index),data(1).A.v1_vx_hat(index),'c-.','linewidth',plt_stuff.lval)
-    plot(data(1).A.RelTime(index),data(1).A.v1_leadXVel(index),'k --','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_vx_des(index),'r','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v3_vx_hat(index),'c-.','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_leadXVel(index),'k --','linewidth',plt_stuff.lval)
     hold off
     xlim([startTime endTime])
     ylabel('$e_{1}^{\rm T} p_i$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
@@ -280,11 +263,11 @@ function myPlots_mid_test(plt_stuff,data)
 %     ylim([-0.5 0.5])
     
     subplot(3,1,2)
-    plot(data(1).A.RelTime(index),data(1).A.v1_yVel(index),'b','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_yVel(index),'b','linewidth',plt_stuff.lval)
     hold on
-    plot(data(1).A.RelTime(index),data(1).A.v1_vy_des(index),'r','linewidth',plt_stuff.lval)
-    plot(data(1).A.RelTime(index),data(1).A.v1_vy_hat(index),'c-.','linewidth',plt_stuff.lval)
-    plot(data(1).A.RelTime(index),data(1).A.v1_leadYVel(index),'k --','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_vy_des(index),'r','linewidth',plt_stuff.lval)
+%     plot(data(1).A.RelTime(index),data(1).A.v3_vy_hat(index),'c-.','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_leadYVel(index),'k --','linewidth',plt_stuff.lval)
     hold off
     xlim([startTime endTime])
     ylabel('$e_{2}^{\rm T} p_i $~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
@@ -296,12 +279,12 @@ function myPlots_mid_test(plt_stuff,data)
 %     ylim([-0.5 0.5])
     
     subplot(3,1,3)
-    plot(data(1).A.RelTime(index),data(1).A.v1_zVel(index),'b','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_zVel(index),'b','linewidth',plt_stuff.lval)
     hold on
-    plot(data(1).A.RelTime(index),data(1).A.v1_vz_des(index),'r','linewidth',plt_stuff.lval)
+    plot(data(1).A.RelTime(index),data(1).A.v3_vz_des(index),'r','linewidth',plt_stuff.lval)
 %     plot(data(1).A.RelTime(index),data(1).A.v1_vz_hat(index),'c-.','linewidth',plt_stuff.lval)
-    plot(0,0,'c-.')
-    plot(data(1).A.RelTime(index),data(1).A.v1_leadZVel(index),'k --','linewidth',plt_stuff.lval)
+%     plot(0,0,'c-.')
+    plot(data(1).A.RelTime(index),data(1).A.v3_leadZVel(index),'k --','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{3}^{\rm T} p_i $~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     xlabel('$t$~(s)','interpreter','latex','FontSize',plt_stuff.fsize)
@@ -312,8 +295,6 @@ function myPlots_mid_test(plt_stuff,data)
     set(leggy,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
     
 
-
-    
     
     
     
@@ -322,7 +303,7 @@ function myPlots_mid_test(plt_stuff,data)
     max_time = input('Time_max for cost evaluation: \n');
         
     error =  agent_pos_1 - lead_pos;
-    error_vel = [data(1).A.v1_xVel(index),data(1).A.v1_yVel(index),data(1).A.v1_zVel(index)] - [data(1).A.v1_leadXVel(index),data(1).A.v1_leadYVel(index),data(1).A.v1_leadZVel(index)];
+    error_vel = [data(1).A.v3_xVel(index),data(1).A.v3_yVel(index),data(1).A.v3_zVel(index)] - [data(1).A.v3_leadXVel(index),data(1).A.v3_leadYVel(index),data(1).A.v3_leadZVel(index)];
     
     
     index_cost = find(data(1).A.RelTime(index) > min_time);
@@ -338,6 +319,7 @@ function myPlots_mid_test(plt_stuff,data)
     
     Cost_pos = (1/2)*sum(error(index_cost(tempdex_cost),:).^2,1)/length(index_cost(tempdex_cost))
     Cost_vel = (1/2)*sum(error_vel(index_cost(tempdex_cost),:).^2,1)/length(index_cost(tempdex_cost))
+
 
 
 end
