@@ -127,6 +127,9 @@ function myfun(src,event)
         case 'f'
             fCom = 6;
             disp('Formation Flight')
+        case 'escape'    
+            fCom = 2;
+            close 'NatNet UI'
         otherwise
             disp('Try Again')
     end
