@@ -128,7 +128,8 @@ function myfun(src,event)
             fCom = 6;
             disp('Formation Flight')
         case 'escape'    
-            fCom = 2;
+            fCom = 4; % Send the land command when we escape from communication code 
+            disp('Landing')
             close 'NatNet UI'
         otherwise
             disp('Try Again')
