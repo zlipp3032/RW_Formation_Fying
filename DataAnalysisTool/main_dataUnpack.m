@@ -15,13 +15,13 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 path = '/Volumes/ZACK-DRIVE/FlightLogs/FormationTests/';
 % path =     '/Users/zlipp3032/Documents/MastersThesisUAS/Experiments/Data/Outdoor/FormationTests/';
 
-test = 'Outdoor_030320/';
+test = 'Outdoor_030420/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2020_01_21__20_33_24_log_v1';
+data(1).file = '2020_01_21__21_57_13_log_v1';
 data(2).file = '2019_09_07__12_54_44_log_v2';
 data(3).file = '2020_01_21__11_17_10_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,42 +313,42 @@ function myPlots_mid_test(plt_stuff,data)
     
     
     
-%     % Verify the middle-loop
-%     zc = 2;
-%     k0 = 2;
-%     k1 = 0.2;
-%     
-%     
-%     gamma = round(exp(-zc*0.1),4);
-%     
-%     
-%     
-%     vd_hat = zeros(length(index),3);
-%     vd_hat_prev = [0,0,0];
-%     vd = [data(1).A.v1_vx_des(index), data(1).A.v1_vy_des(index), data(1).A.v1_vz_des(index)];
-%     p = [data(1).A.v1_xVel(index),data(1).A.v1_yVel(index),data(1).A.v1_zVel(index)];
-%     
-%     for i = 1:length(index)-1
-%         
-%         
-%         
-%         vd_hat(i+1,:) = gamma*vd_hat(i,:) + ((1-gamma)/zc)*(k0*vd(i,:) + k1*(vd(i,:) - p(i,:)) );
-%         vd_hat_prev = vd_hat(i,:);
-%     
-%     
-%     end
-%     
-%     
-%     err = vd_hat(:,1) - data(1).A.v1_vx_hat(index);
-%     
-%     figure
-%     subplot(2,1,1)
-%     plot(err)
-%     
-%     subplot(2,1,2)
-%     plot(vd_hat(:,1))
-%     hold on
-%     plot(data(1).A.v1_vx_hat(index))
+    % Verify the middle-loop
+    zc = input('Pick zc \n');
+    k0 = input('Pick k0 \n');
+    k1 = input('Pick k1 \n');
+    
+    
+    gamma = round(exp(-zc*0.1),4);
+    
+    
+    
+    vd_hat = zeros(length(index),3);
+    vd_hat_prev = [0,0,0];
+    vd = [data(1).A.v1_vx_des(index), data(1).A.v1_vy_des(index), data(1).A.v1_vz_des(index)];
+    p = [data(1).A.v1_xVel(index),data(1).A.v1_yVel(index),data(1).A.v1_zVel(index)];
+    
+    for i = 1:length(index)-1
+        
+        
+        
+        vd_hat(i+1,:) = gamma*vd_hat(i,:) + ((1-gamma)/zc)*(k0*vd(i,:) + k1*(vd(i,:) - p(i,:)) );
+        vd_hat_prev = vd_hat(i,:);
+    
+    
+    end
+    
+    
+    err = vd_hat(:,1) - data(1).A.v1_vx_hat(index);
+    
+    figure
+    subplot(2,1,1)
+    plot(err)
+    
+    subplot(2,1,2)
+    plot(vd_hat(:,1))
+    hold on
+    plot(data(1).A.v1_vx_hat(index))
     
     
 
