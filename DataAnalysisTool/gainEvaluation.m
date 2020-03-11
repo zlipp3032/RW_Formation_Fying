@@ -4,30 +4,37 @@ clc
 close all
 
 % Inter-agent position gains
-a12 = 0.08;
-a13 = 0.08;
-a23 = 0.01;
+a12 = 0.025;
+a13 = 0;
+a21 = 0.2;
+a23 = 0;
+a31 = 0.2;
+a32 = 0;
 
 
 % Inter-agent velocity gains
-b12 = 0.55;
-b13 = 0.55;
-b23 = 0.1;
+b12 = 0.1083;
+b13 = 0;
+b21 = 0.866;
+b23 = 0;
+b31 = 0.866;
+b32 = 0;
+
 
 % Leader Position gains
-g1 = 0.25;
+g1 = 0.275;
 g2 = 0.0;
 g3 = 0.0;
 
 % Leader Velocity gains
-e1 = 1.8;
+e1 = 1.1917;
 e2 = 0.0;
 e3 = 0.0;
 
 
 % Set the adjacency matrix
-A = [0 a12 a13; a12 0 a23; a13 a23 0];
-B = [0 b12 b13; b12 0 b23; b13 b23 0];
+A = [0 a12 a13; a21 0 a23; a31 a32 0];
+B = [0 b12 b13; b21 0 b23; b31 b32 0];
 
 % Graph Laplacians
 La = diag(sum(A,2)) - A;
