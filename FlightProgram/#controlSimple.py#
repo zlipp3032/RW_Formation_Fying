@@ -645,7 +645,7 @@ class Controller(threading.Thread):
 	# Setup the vectors for the middle-loop low pass
 	pi_prev = np.matrix([[self.vehicleState.previousState['vx']],[self.vehicleState.previousState['vy']],[self.vehicleState.previousState['vz']]])
 	vd_prev = np.matrix([[self.vehicleState.controlState['vx_hat']],[self.vehicleState.controlState['vy_hat']],[self.vehicleState.controlState['vz_hat']]])
-	ud_prev = np.matrix([[self.vehicleState.controlState['ux_des']],[self.vehicleState.controlState['uy_des']],[self.vehicleState.controlState['uz_des']]])
+        ud_prev = np.matrix([[self.vehicleState.controlState['ux_des']],[self.vehicleState.controlState['uy_des']],[self.vehicleState.controlState['uz_hat']]])
 	vd = self.computeMidLowPass(vd_prev,pkp,pi_prev,ud_prev)
 	#vd = self.computeMidPDControl(uk,pk,pi)
         self.vehicleState.accumulator['intXPosError'] = accPosError[0,0]
@@ -730,15 +730,13 @@ class Controller(threading.Thread):
 	# If k0 = 0 && k1 = wc ---> then this is a standard low pass filter (e.g., no extra weight on the desired state)
 	# If k0 = wc && k1 = 0 ---> then this is a low pass filter on the desired velocity input (e.g., no emphasis on the feedback error)
 	# Note: gamma = exp(-wc*Ts) ---> wc = cutoff frequency, Ts = sample time
-	# Adjust T_delay >= 0 to account for the time delay in response of middle-loop
 	gains = self.vehicleState.parameters.gains
 	gamma_mid = round(np.exp(-gains['cutoff_mid']*0.1),4)
 	filter_weight = (1 - gamma_mid) / gains['cutoff_mid']
 	# Compute the feedback term
 	vel_error = gains['k1_lp_mid'] * (pd - p)
-	# Compute the feedforward term accounting for time delay
-	pd_prime = pd + gains['T_delay'] * ud
-	des_vel = gains['k0_lp_mid'] * pd_prime
+	# Compute the feedforward term
+	des_vel = gains['k0_lp_mid'] * pd
 	# Compute the first-order low pass filter
 	val = filter_weight * (des_vel + vel_error) + gamma_mid * val_prev
 	return val
