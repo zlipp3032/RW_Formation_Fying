@@ -4,7 +4,7 @@ clc
 close all
 
 % Inter-agent position gains
-a12 = 0.025;
+a12 = 0;
 a13 = 0;
 a21 = 0.2;
 a23 = 0;
@@ -13,7 +13,7 @@ a32 = 0;
 
 
 % Inter-agent velocity gains
-b12 = 0.1083;
+b12 = 0;
 b13 = 0;
 b21 = 0.866;
 b23 = 0;
@@ -22,12 +22,12 @@ b32 = 0;
 
 
 % Leader Position gains
-g1 = 0.275;
+g1 = 0.3;
 g2 = 0.0;
 g3 = 0.0;
 
 % Leader Velocity gains
-e1 = 1.1917;
+e1 = 1.3;
 e2 = 0.0;
 e3 = 0.0;
 

@@ -82,9 +82,9 @@ function [qg,pg,ug,attg] = qgfunc(t,wg)
     % Translating Leader: Sinusoidal trajectory in the x direction
 %     amp = 1;
 %     freq = 1/30;
-%     qg = [amp*sin(freq*2*pi*t),0.0,-6.0];
-%     pg = [amp*freq*2*pi*cos(freq*2*pi*t),0.0,0.0];
-%     ug = [-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0,0.0];
+%     qg = [0.0,amp*sin(freq*2*pi*t),-6.0];
+%     pg = [0.0,amp*freq*2*pi*cos(freq*2*pi*t),0.0];
+%     ug = [0.0,-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0];
 %     attg = [0.0,0.0,0.0];
 
  % Translating Leader: Sinusoidal trajectory in the x and z directions
