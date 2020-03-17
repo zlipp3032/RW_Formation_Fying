@@ -15,7 +15,8 @@ leaderCoord = [38.0063086, -84.4057393];
 
 
 % Pick the leader body-fixed yaw rotation rate
-wg = 0.1;
+% Note: Only pick one entry to ber non-zero (Fix com_tests to incorporate any vector, wg)
+wg = [0,0,0.1];
 
 global hFigure fCom u
 
@@ -48,9 +49,15 @@ while true
     
  
     
-    
-    [qg,pg,ug,attg] = qgfunc(t,wg);
-%     leaderAtt = [;
+    if fCom == 6 || fCom == 5
+        [qg,pg,ug,attg] = qgfunc(t,wg,attg_prev,Ts);
+        attg
+    else
+        qg = [0.0,0.0,-6.0];
+        pg = [0.0,0.0,0.0];
+        ug = [0.0,0.0,0.0];
+        attg = [0.0,0.0,0.0];
+    end
     sendData(msg_id,fCom,qg,pg,ug,attg,leaderCoord)
     
     qg_prev = qg;
@@ -70,34 +77,32 @@ disp('Exit.')
 
 
 
-function [qg,pg,ug,attg] = qgfunc(t,wg)
+function [qg,pg,ug,attg] = qgfunc(t,wg,attg_prev,Ts)
     
 
     % Non-moving leader
     qg = [0.0,0.0,-6.0];
     pg = [0.0,0.0,0.0];
     ug = [0.0,0.0,0.0];
-    attg = [0.0,0.0,0.0];    
+    attg = attg_prev + Ts*wg;    
 
     % Translating Leader: Sinusoidal trajectory in the x direction
-%     amp = 1;
+%     amp = 5;
 %     freq = 1/30;
-%     qg = [0.0,amp*sin(freq*2*pi*t),-6.0];
-%     pg = [0.0,amp*freq*2*pi*cos(freq*2*pi*t),0.0];
-%     ug = [0.0,-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0];
-%     attg = [0.0,0.0,0.0];
+%     qg = [amp*sin(freq*2*pi*t),0.0,-6.0];
+%     pg = [amp*freq*2*pi*cos(freq*2*pi*t),0.0,0.0];
+%     ug = [-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0,0.0];
+%     attg = attg_prev + Ts*wg;
 
  % Translating Leader: Sinusoidal trajectory in the x and z directions
 %     amp = 1;
 %     freq = 1/30;
-%     qg = [amp*sin(freq*2*pi*t),0.0,-6.0 + amp*sin(freq*2*pi*t)];
-%     pg = [amp*freq*2*pi*cos(freq*2*pi*t),0.0,amp*freq*2*pi*cos(freq*2*pi*t)];
-%     ug = [-amp*4*(freq*pi)^2*sin(freq*2*pi*t),0.0,-amp*4*(freq*pi)^2*sin(freq*2*pi*t)];
-%     attg = [0.0,0.0,0.0];
+%     qg = [0.0,amp*sin(freq*2*pi*t),-6.0 + amp*sin(freq*2*pi*t)];
+%     pg = [0.0,amp*freq*2*pi*cos(freq*2*pi*t),amp*freq*2*pi*cos(freq*2*pi*t)];
+%     ug = [0.0,-amp*4*(freq*pi)^2*sin(freq*2*pi*t),-amp*4*(freq*pi)^2*sin(freq*2*pi*t)];
+%     attg = attg_prev + Ts*wg;
 
 
-    % Rotating leader: Yaw based on constant yaw rate
-    % On the to-do list
     
     
 

@@ -5,7 +5,7 @@ function sendData(msg_id,fCom,qg,pg,ug,leaderAtt,leaderCoord)
 % pprime = p'/1000;
 % qprime(3) = -qprime(3);
 % pprime(3) = -pprime(3);
-% theta(3) = -theta(3);
+% theta(3) = -theta(3); 
 
 
 global u
