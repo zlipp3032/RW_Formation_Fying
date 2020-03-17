@@ -4,7 +4,11 @@ clc
 close all
 
 % Inter-agent position gains
+<<<<<<< HEAD
+a12 = 0.05;
+=======
 a12 = 0;
+>>>>>>> 054ca454132defa69eb6e42b1e2787b18fae3c15
 a13 = 0;
 a21 = 0.2;
 a23 = 0;
@@ -13,7 +17,11 @@ a32 = 0;
 
 
 % Inter-agent velocity gains
+<<<<<<< HEAD
+b12 = 0.2165;
+=======
 b12 = 0;
+>>>>>>> 054ca454132defa69eb6e42b1e2787b18fae3c15
 b13 = 0;
 b21 = 0.866;
 b23 = 0;
@@ -22,12 +30,20 @@ b32 = 0;
 
 
 % Leader Position gains
+<<<<<<< HEAD
+g1 = 0.25;
+=======
 g1 = 0.3;
+>>>>>>> 054ca454132defa69eb6e42b1e2787b18fae3c15
 g2 = 0.0;
 g3 = 0.0;
 
 % Leader Velocity gains
+<<<<<<< HEAD
+e1 = 1.0833;
+=======
 e1 = 1.3;
+>>>>>>> 054ca454132defa69eb6e42b1e2787b18fae3c15
 e2 = 0.0;
 e3 = 0.0;
 
@@ -59,6 +75,46 @@ var = (real(CL_eig).^2)./(imag(CL_eig).^2);
 zeta = (var./sqrt(1+var.^2))'
 
 T_settle = -4./real(CL_eig)'
+
+
+
+
+
+[kappa_min,~] = D_generator_QSC(La,G,3)
+
+
+
+
+
+
+
+
+function [kapp_min,D] = D_generator_QSC(L,B,n)
+
+
+L_hat = L+B;
+
+C = inv(L_hat');
+
+
+d = C * ones(n,1);
+
+
+% disp('PD Diagonal matrix')
+D = diag(d);
+assert(min(eig(D*L_hat+L_hat'*D))>=-1e-10);
+
+% disp('PD Matrix D*(L+B)^T + (L+B)*D')
+H = L + B;
+X = D*H + H'*D;
+eig_X = eig(X)
+assert(min(eig(X))>=-1e-10);
+
+temp1 = (D.^(1/2)/X)*D.^(1/2);
+temp2 = max(eig(temp1));
+kapp_min = sqrt(2*temp2);
+
+end
 
 
 
