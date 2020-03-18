@@ -505,21 +505,22 @@ function myPlots(plt_stuff,data,di)
     
     
     
-    % Compute the Rotation matrices
+    %% Compute the Rotation matrices
     rotation = struct;
     
     
     
-    for i = 1:length(index_1)
+    index = index_1;
+    for i = 1:length(index)
 %         % Set the leader trajectory
 %         leader(i).qg = [data.v1_leadXPos(index(i));data.v1_leadYPos(index(i));data.v1_leadZPos(index(i))];
 %         leader(i).pg = [data.v1_leadXVel(index(i));data.v1_leadYVel(index(i));data.v1_leadZVel(index(i))];
         
-        rotation(i).Rx = [1 0 0; 0 cos(data(1).A.v1_leadRoll(index_1(i))) sin(data(1).A.v1_leadRoll(index_1(i))); 0 -sin(data(1).A.v1_leadRoll(index_1(i))) cos(data(1).A.v1_leadRoll(index_1(i)))];
-        rotation(i).Ry = [cos(data(1).A.v1_leadPitch(index_1(i))) 0 -sin(data(1).A.v1_leadPitch(index_1(i))); 0 1 0; sin(data(1).A.v1_leadPitch(index_1(i))) 0 cos(data(1).A.v1_leadPitch(index_1(i)))];
-        rotation(i).Rz = [cos(data(1).A.v1_leadYaw(index_1(i))) sin(data(1).A.v1_leadYaw(index_1(i))) 0; -sin(data(1).A.v1_leadYaw(index_1(i))) cos(data(1).A.v1_leadYaw(index_1(i))) 0; 0 0 1];
+        rotation(i).Rx = [1 0 0; 0 cos(data(1).A.v1_leadRoll(index(i))) sin(data(1).A.v1_leadRoll(index(i))); 0 -sin(data(1).A.v1_leadRoll(index(i))) cos(data(1).A.v1_leadRoll(index(i)))];
+        rotation(i).Ry = [cos(data(1).A.v1_leadPitch(index(i))) 0 -sin(data(1).A.v1_leadPitch(index(i))); 0 1 0; sin(data(1).A.v1_leadPitch(index(i))) 0 cos(data(1).A.v1_leadPitch(index(i)))];
+        rotation(i).Rz = [cos(data(1).A.v1_leadYaw(index(i))) sin(data(1).A.v1_leadYaw(index(i))) 0; -sin(data(1).A.v1_leadYaw(index(i))) cos(data(1).A.v1_leadYaw(index(i))) 0; 0 0 1];
 
-        rotation(i).Omega = [0 -data(1).A.v1_lead_wZ(index_1(i)) data(1).A.v1_lead_wY(index_1(i)); data(1).A.v1_lead_wZ(index_1(i)) 0 -data(1).A.v1_lead_wX(index_1(i)); -data(1).A.v1_lead_wY(index_1(i)) data(1).A.v1_lead_wX(index_1(i)) 0];
+        rotation(i).Omega = [0 -data(1).A.v1_lead_wZ(index(i)) data(1).A.v1_lead_wY(index(i)); data(1).A.v1_lead_wZ(index(i)) 0 -data(1).A.v1_lead_wX(index(i)); -data(1).A.v1_lead_wY(index(i)) data(1).A.v1_lead_wX(index(i)) 0];
         
         rotation(i).Rg_I2B = rotation(i).Rx*rotation(i).Ry*rotation(i).Rz;
         rotation(i).Rg_dot = rotation(i).Rg_I2B'*rotation(i).Omega;
@@ -556,9 +557,7 @@ function myPlots(plt_stuff,data,di)
     
     
     % Zero the time axis
-    t = data(1).A.RelTime(index_1) - data(1).A.RelTime(index_1(1));
-    t2 = data(2).A.RelTime(index_2) - data(2).A.RelTime(index_2(1));
-    t3 = data(3).A.RelTime(index_3) - data(3).A.RelTime(index_3(1));
+    t = data(1).A.RelTime(index) - data(1).A.RelTime(index(1));
     
     startTime = t(1);
     endTime = t(end);
@@ -567,7 +566,7 @@ function myPlots(plt_stuff,data,di)
     
     
     
-    % Plot the inter-agent positions
+    %% Plot the inter-agent positions
     fig0 = figure;
     subplot(3,1,1)
     plot(t,pos_12(:,1),'b','linewidth',plt_stuff.lval)
@@ -842,40 +841,40 @@ function myPlots(plt_stuff,data,di)
     % Plot agent two's input
     fig4 = figure;
     subplot(3,1,1)
-    plot(t2,data(2).A.v2_vx_des(data(2).index_form),'k-.','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_vx_des(data(2).index_form),'k-.','linewidth',plt_stuff.lval)
     hold on
-    plot(t2,data(2).A.v2_xVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
-    plot(t2,data(2).A.v2_vx_hat(data(2).index_form),'r-','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_xVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_vx_hat(data(2).index_form),'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{1}^{\rm T} p_2$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t2(1), t2(end)])
+    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
     leg_dummy = legend(); % sets the legend entries to nothing
     set(leg_dummy,'visible','off') % removes the legend from the plot
     set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
     subplot(3,1,2)
-    plot(t2,data(2).A.v2_vy_des(data(2).index_form),'k-.','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_vy_des(data(2).index_form),'k-.','linewidth',plt_stuff.lval)
     hold on
-    plot(t2,data(2).A.v2_yVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
-    plot(t2,data(2).A.v2_vy_hat(data(2).index_form),'r-','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_yVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_vy_hat(data(2).index_form),'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{2}^{\rm T} p_2$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t2(1), t2(end)])
+    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
     leg_dummy = legend(); % sets the legend entries to nothing
     set(leg_dummy,'visible','off') % removes the legend from the plot
     set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
     subplot(3,1,3)
-    plot(t2,data(2).A.v2_vz_des(data(2).index_form),'k -.','linewidth',plt_stuff.lval)
+    plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_vz_des(data(2).index_form),'k -.','linewidth',plt_stuff.lval)
     hold on
-	plot(t2,data(2).A.v2_zVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
+	plot(data(2).A.RelTime(data(2).index_form),data(2).A.v2_zVel(data(2).index_form),'b -','linewidth',plt_stuff.lval)
     plot(0,0,'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{3}^{\rm T} p_2$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t2(1), t2(end)])
+    xlim([data(2).A.RelTime(data(2).index_form(1)), data(2).A.RelTime(data(2).index_form(end))])
     leg_fig4 = legend({'$v_{2,d}$','$p_{2}$','$\hat{v}_2$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig4,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
@@ -899,51 +898,43 @@ function myPlots(plt_stuff,data,di)
     % Plot agent three's input
     fig5 = figure;
     subplot(3,1,1)
-    plot(t3,data(3).A.v3_vx_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_vx_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
     hold on
-    plot(t3,data(3).A.v3_xVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
-    plot(t3,data(3).A.v3_vx_hat(data(3).index_form),'r-','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_xVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_vx_hat(data(3).index_form),'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{1}^{\rm T} p_3$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t3(1), t3(end)])
+    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
     leg_dummy = legend(); % sets the legend entries to nothing
     set(leg_dummy,'visible','off') % removes the legend from the plot
     set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
     subplot(3,1,2)
-    plot(t3,data(3).A.v3_vy_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_vy_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
     hold on
-    plot(t3,data(3).A.v3_yVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
-    plot(t3,data(3).A.v3_vy_hat(data(3).index_form),'r-','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_yVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_vy_hat(data(3).index_form),'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{2}^{\rm T} p_3$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t3(1), t3(end)])
+    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
     leg_dummy = legend(); % sets the legend entries to nothing
     set(leg_dummy,'visible','off') % removes the legend from the plot
     set(gca,'xticklabel',[]) % gets rid of the labels on the x-axis
     
     subplot(3,1,3)
-    plot(t3,data(3).A.v3_vz_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
+    plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_vz_des(data(3).index_form),'k-.','linewidth',plt_stuff.lval)
     hold on
-	plot(t3,data(3).A.v3_zVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
+	plot(data(3).A.RelTime(data(3).index_form),data(3).A.v3_zVel(data(3).index_form),'b -','linewidth',plt_stuff.lval)
     plot(0,0,'r-','linewidth',plt_stuff.lval)
     hold off
     ylabel('$e_{3}^{\rm T} p_3$~(m/s)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    xlim([t3(1), t3(end)])
+    xlim([data(3).A.RelTime(data(3).index_form(1)), data(3).A.RelTime(data(3).index_form(end))])
     leg_fig5 = legend({'$v_{3,d}$','$p_{3}$','$\hat{v}_3$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig5,'interpreter','latex','FontSize',plt_stuff.leg_fsize) % removes the legend from the plot
-    
-    
-    % It is interesting to look at the delay when each agent sees the other
-    % agent's state!!!!!
-%     figure
-%     plot(t3,data(3).A.v3_xVel(data(3).index_form))
-%     hold on
-%     plot(t,agent_vel_3(:,1))
     
     
     
