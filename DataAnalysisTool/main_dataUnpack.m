@@ -51,7 +51,7 @@ plt_stuff.plot_sequence = 2; %0: Whole flight; 1: Virtual Leader; 2: Formation C
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set the figure file name and figure path
-plt_stuff.file_str = 'exp';
+plt_stuff.file_str = 'exp8';
 plt_stuff.build_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 plt_stuff.fig_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 
@@ -861,6 +861,102 @@ function myPlots(plt_stuff,data,di)
     cleanfigure('handle',figvel)
     set(figpos,'Resize','on')
 %     matlab2tikz(tikz_path_1,'height', '\fheight', 'width', '\fwidth' );
+
+
+
+    Ts = 0.1;
+    Fs = 30;
+    canoe = 3;
+    
+    % Plote every fraction of a point
+    splits = 3;
+    scooby_snacks = 1/splits;
+    scooby = Fs*scooby_snacks/Ts;
+    skip = 2;
+    
+    tskip = t(1+skip*scooby:scooby:end/2)
+ 
+    
+    
+    
+    fig_three = figure;
+    plot3(agent_pos_1(1+skip*scooby:scooby:end/2,1),agent_pos_1(1+skip*scooby:scooby:end/2,2),agent_pos_1(1+skip*scooby:scooby:end/2,3),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','b',...
+                                                                                                                'MarkerSize',10)
+    hold on
+    plot3(agent_pos_2(1+skip*scooby:scooby:end/2,1),agent_pos_2(1+skip*scooby:scooby:end/2,2),agent_pos_2(1+skip*scooby:scooby:end/2,3),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','r',...
+                                                                                                                'MarkerSize',10)
+    plot3(agent_pos_3(1+skip*scooby:scooby:end/2,1),agent_pos_3(1+skip*scooby:scooby:end/2,2),agent_pos_3(1+skip*scooby:scooby:end/2,3),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','g',...
+                                                                                                                'MarkerSize',10)
+    plot3(lead_pos(1+skip*scooby:scooby:end/2,1),lead_pos(1+skip*scooby:scooby:end/2,2),lead_pos(1+skip*scooby:scooby:end/2,3),'k x','MarkerSize',10)
+    plot3(lead_R2T_1(1+skip*scooby:scooby:end/2,1),lead_R2T_1(1+skip*scooby:scooby:end/2,2),lead_R2T_1(1+skip*scooby:scooby:end/2,3),'b x','MarkerSize',10)
+    plot3(lead_R2T_2(1+skip*scooby:scooby:end/2,1),lead_R2T_2(1+skip*scooby:scooby:end/2,2),lead_R2T_2(1+skip*scooby:scooby:end/2,3),'r x','MarkerSize',10)
+    plot3(lead_R2T_3(1+skip*scooby:scooby:end/2,1),lead_R2T_3(1+skip*scooby:scooby:end/2,2),lead_R2T_3(1+skip*scooby:scooby:end/2,3),'g x','MarkerSize',10)
+    plot3(lead_pos(1+skip*scooby:end/2,1),lead_pos(1+skip*scooby:end/2,2),lead_pos(1+skip*scooby:end/2,3),'k --')
+    zlim([-20,0])
+    xlabel('$e_1^{\rm T} q_i$','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_2^{\rm T} q_i$','interpreter','latex','FontSize',plt_stuff.fsize)
+    zlabel('$e_3^{\rm T} q_i$','interpreter','latex','FontSize',plt_stuff.fsize)
+    grid on
+    
+    
+
+    fig_two = figure;
+    plot(agent_pos_1(1+skip*scooby:scooby:end/2,1),agent_pos_1(1+skip*scooby:scooby:end/2,2),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','b',...
+                                                                                                                'MarkerSize',10)
+    hold on
+    plot(agent_pos_2(1+skip*scooby:scooby:end/2,1),agent_pos_2(1+skip*scooby:scooby:end/2,2),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','r',...
+                                                                                                                'MarkerSize',10)
+    plot(agent_pos_3(1+skip*scooby:scooby:end/2,1),agent_pos_3(1+skip*scooby:scooby:end/2,2),'o','LineWidth',2,...
+                                                                                                                'MarkerEdgeColor','k',...
+                                                                                                                'MarkerFaceColor','g',...
+                                                                                                                'MarkerSize',10)
+    plot(lead_pos(1+skip*scooby:scooby:end/2,1),lead_pos(1+skip*scooby:scooby:end/2,2),'k x','MarkerSize',10)
+    plot(lead_R2T_1(1+skip*scooby:scooby:end/2,1),lead_R2T_1(1+skip*scooby:scooby:end/2,2),'b x','MarkerSize',10)
+    plot(lead_R2T_2(1+skip*scooby:scooby:end/2,1),lead_R2T_2(1+skip*scooby:scooby:end/2,2),'r x','MarkerSize',10)
+    plot(lead_R2T_3(1+skip*scooby:scooby:end/2,1),lead_R2T_3(1+skip*scooby:scooby:end/2,2),'g x','MarkerSize',10)
+    plot(lead_pos(1+skip*scooby:end/2,1),lead_pos(1+skip*scooby:end/2,2),'k --')
+%     plot(lead_pos(1+skip*scooby+scooby+scooby,1),lead_pos(1+skip*scooby+scooby+scooby,2),'y x')
+    plot(lead_R2T_1(1+skip*scooby:end/2,1),lead_R2T_1(1+skip*scooby:end/2,2),'b --')
+    plot(lead_R2T_2(1+skip*scooby:end/2,1),lead_R2T_2(1+skip*scooby:end/2,2),'r --')
+    plot(lead_R2T_3(1+skip*scooby:end/2,1),lead_R2T_3(1+skip*scooby:end/2,2),'g --')
+    hold off
+    xlabel('$e_1^{\rm T} q_i$','interpreter','latex','FontSize',plt_stuff.fsize)
+    ylabel('$e_2^{\rm T} q_i$','interpreter','latex','FontSize',plt_stuff.fsize)
+    xlim([-15 10])
+    ylim([-11 10])
+    grid on
+    leg_fig2 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g}$','$q_{\rm g} + \delta_1$','$q_{\rm g} + \delta_2$','$q_{\rm g} + \delta_3$'},'orientation','horizontal'); % sets the legend entries to nothing
+    legend boxoff
+    set(leg_fig2,'interpreter','latex','FontSize',plt_stuff.leg_fsize,'NumColumns',4,'location','SouthWest') % removes the legend from the plot
+    x1 = [0.4 0.48];
+    y1 = [0.7 0.64];
+    str1 = '$t = 40.2$~s~';
+    annotation('textarrow',x1,y1,'String',str1,'interpreter','latex');%,'FitBoxToText','on');
+    str2 = '$t = 30.2$~s';
+    x2 = [0.51 0.56];
+    y2 = [0.28 0.355];
+    annotation('textarrow',x2,y2,'String',str2,'interpreter','latex');%,'FitBoxToText','on');
+    str3 = '$t = 20.1$~s';
+    x3 = [0.76 0.72];
+    y3 = [0.7 0.63];
+    annotation('textarrow',x3,y3,'String',str3,'interpreter','latex');%,'FitBoxToText','on');
+    % Set figure properties and save it as tikz and pdf files.
+%     pdf_path_1 = [build_path file_str '_position.pdf'];
+    tikz_path_1 = [plt_stuff.fig_path plt_stuff.file_str '_2d.tikz'];
+    % saveas(fig1,pdf_path_1);
+    cleanfigure('handle',fig_two)
+    set(fig_two,'Resize','on')
+    matlab2tikz(tikz_path_1,'height', '\fheight', 'width', '\fwidth' );
 
 
     
