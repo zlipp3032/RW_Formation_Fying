@@ -52,7 +52,7 @@ plt_stuff.plot_sequence = 2; %0: Whole flight; 1: Virtual Leader; 2: Formation C
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set the figure file name and figure path
-plt_stuff.file_str = 'exp_ind_trro';
+plt_stuff.file_str = 'exp';
 plt_stuff.build_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 plt_stuff.fig_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 

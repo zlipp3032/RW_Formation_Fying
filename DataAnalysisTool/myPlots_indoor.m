@@ -511,15 +511,15 @@ function myPlots_indoor(plt_stuff,data,di)
     plot(lead_R2T_2(1+skip*scooby:scooby:endex,2),lead_R2T_2(1+skip*scooby:scooby:endex,1),'r o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
     plot(lead_R2T_3(1+skip*scooby:scooby:endex,2),lead_R2T_3(1+skip*scooby:scooby:endex,1),'g o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
     plot(lead_pos(1+skip*scooby:endex,2),lead_pos(1+skip*scooby:endex,1),'k --')
-%     plot(lead_pos(1+skip*scooby,2),lead_pos(1+skip*scooby,1),'y x')
+    plot(lead_pos(1+skip*scooby+scooby,2),lead_pos(1+skip*scooby+scooby,1),'y x')
     plot(lead_R2T_1(1+skip*scooby:endex,2),lead_R2T_1(1+skip*scooby:endex,1),'b --')
     plot(lead_R2T_2(1+skip*scooby:endex,2),lead_R2T_2(1+skip*scooby:endex,1),'r --')
     plot(lead_R2T_3(1+skip*scooby:endex,2),lead_R2T_3(1+skip*scooby:endex,1),'g --')
     hold off
     xlabel('$e_2^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     ylabel('$e_1^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    xlim([-3 2.5])
-    ylim([-3 1])
+    xlim([-1.5 2])
+    ylim([-3.5 1])
     grid on
     axis equal
     leg_fig2 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g}$','$q_{\rm g} + \delta_1$','$q_{\rm g} + \delta_2$','$q_{\rm g} + \delta_3$'},'orientation','horizontal'); % sets the legend entries to nothing
