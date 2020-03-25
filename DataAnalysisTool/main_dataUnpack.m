@@ -15,15 +15,16 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 % path = '/Volumes/ZACK-DRIVE/FlightLogs/FormationTests/';
 path =     '/Users/Zack/Documents/Writeups/Journal_1/Experimental_Data/';
 
-test = 'Outdoor_031720/';
+% test = 'Outdoor_031720/';
+test = 'Indoor_ACC/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_08__12_44_51_log_v1';
-data(2).file = '2019_09_07__20_06_06_log_v2';
-data(3).file = '2020_01_22__03_56_20_log_v3';
+data(1).file = '2019_09_07__02_07_22_log_v1';
+% data(2).file = '2019_09_07__20_06_06_log_v2';
+% data(3).file = '2020_01_22__03_56_20_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -32,8 +33,8 @@ data(3).file = '2020_01_22__03_56_20_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute the desired distance in the leader frame
-% target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
-target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
+target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
+% target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -51,7 +52,7 @@ plt_stuff.plot_sequence = 2; %0: Whole flight; 1: Virtual Leader; 2: Formation C
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set the figure file name and figure path
-plt_stuff.file_str = 'exp';
+plt_stuff.file_str = 'exp_ind_trro';
 plt_stuff.build_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 plt_stuff.fig_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 
