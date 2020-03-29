@@ -15,14 +15,14 @@ disp('Main data analysis tool for 3DR-SOLO formation flight tests.')
 % path = '/Volumes/ZACK-DRIVE/FlightLogs/FormationTests/';
 path =     '/Users/Zack/Documents/Writeups/Journal_1/Experimental_Data/';
 
-% test = 'Outdoor_031720/';
-test = 'Indoor_ACC/';
+test = 'Outdoor_031720/';
+% test = 'Indoor_ACC/';
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pick the file strings
 data = struct;
-data(1).file = '2019_09_07__02_07_22_log_v1';
+data(1).file = '2019_09_08__12_39_22_log_v1';
 % data(2).file = '2019_09_07__20_06_06_log_v2';
 % data(3).file = '2020_01_22__03_56_20_log_v3';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,8 +33,8 @@ data(1).file = '2019_09_07__02_07_22_log_v1';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute the desired distance in the leader frame
-target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
-% target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
+% target_vectors = [0.8 0.43 -0.2; -0.8 0.43 -0.2; 0.0 -0.9 -0.2];
+target_vectors = [3.0 2.0 0.0; -3.0 2.0 -3.0; 0.0 -3.0 -1.5];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -61,7 +61,7 @@ plt_stuff.fig_path = '/Users/Zack/Documents/Writeups/Journal_1/figure/';
 plt_stuff.fsize = 16;%10
 plt_stuff.leg_fsize = 12;%8
 plt_stuff.lval = 1.2;
-plt_stuff.msize = 5;
+plt_stuff.msize = 6;
 
 
 
@@ -176,8 +176,8 @@ end
 disp('End main.')
 
 %% Extra Plotting sequence
-% myPlots(plt_stuff,data,target_vectors)
-myPlots_indoor(plt_stuff,data,target_vectors)
+myPlots(plt_stuff,data,target_vectors)
+% myPlots_indoor(plt_stuff,data,target_vectors)
 
 % myPlots_mid_test(plt_stuff,data)
 
@@ -571,8 +571,8 @@ function myPlots(plt_stuff,data,di)
     
     % Zero the time axis
     t = data(1).A.RelTime(index_1) - data(1).A.RelTime(index_1(1));
-    t2 = data(2).A.RelTime(index_2) - data(2).A.RelTime(index_2(1));
-    t3 = data(3).A.RelTime(index_3) - data(3).A.RelTime(index_3(1));
+%     t2 = data(2).A.RelTime(index_2) - data(2).A.RelTime(index_2(1));
+%     t3 = data(3).A.RelTime(index_3) - data(3).A.RelTime(index_3(1));
     
     startTime = t(1);
     endTime = t(end);
@@ -867,44 +867,112 @@ function myPlots(plt_stuff,data,di)
 
 
 
-    Ts = 0.1;
-    Fs = 30;
-%     canoe = 3;
-%     
-%     % Plote every fraction of a point
-    splits = 3;
-    scooby_snacks = 1/splits;
-    scooby = Fs*scooby_snacks/Ts;
-%     scooby = 0.1*10;
-    skip = 2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        tsplits = 10;
+    tstart = 40;
+    ind1 = find(t>tstart);
+    endex = ind1(1);%scooby*skip + 10;%length(t)/2;
+    ind2 = find(t>tstart+tsplits);
+    endex2 = ind2(1);%scooby*skip2+50;
+    ind3 = find(t>tstart+2*tsplits);
+    endex3 = ind3(1);%scooby*skip3 + 80;
     
-    endex = length(t)/2;
+    tskip = [t(endex) t(endex2) t(endex3)]'
     
-    tskip = t(1+skip*scooby:scooby:endex)
+   
+
+    diasize = 2;
  
     
     
     
     fig_three = figure;
-    plot3(agent_pos_1(1+skip*scooby:scooby:endex,2),agent_pos_1(1+skip*scooby:scooby:endex,1),agent_pos_1(1+skip*scooby:scooby:endex,3),'bo','LineWidth',2,'MarkerEdgeColor','b','MarkerFaceColor','b','MarkerSize',plt_stuff.msize)
+    
+    plot3(lead_pos(endex,2),lead_pos(endex,1),lead_pos(endex,3),'k o','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize)
     hold on
-    plot3(agent_pos_2(1+skip*scooby:scooby:endex,2),agent_pos_2(1+skip*scooby:scooby:endex,1),agent_pos_2(1+skip*scooby:scooby:endex,3),'ro','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',plt_stuff.msize)
-    plot3(agent_pos_3(1+skip*scooby:scooby:endex,2),agent_pos_3(1+skip*scooby:scooby:endex,1),agent_pos_3(1+skip*scooby:scooby:endex,3),'go','LineWidth',2,'MarkerEdgeColor','g','MarkerFaceColor','g','MarkerSize',plt_stuff.msize)
-    plot3(lead_pos(1+skip*scooby:scooby:endex,2),lead_pos(1+skip*scooby:scooby:endex,1),lead_pos(1+skip*scooby:scooby:endex,3),'k x','MarkerSize',plt_stuff.msize)
-    plot3(lead_R2T_1(1+skip*scooby:scooby:endex,2),lead_R2T_1(1+skip*scooby:scooby:endex,1),lead_R2T_1(1+skip*scooby:scooby:endex,3),'b o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot3(lead_R2T_2(1+skip*scooby:scooby:endex,2),lead_R2T_2(1+skip*scooby:scooby:endex,1),lead_R2T_2(1+skip*scooby:scooby:endex,3),'r o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot3(lead_R2T_3(1+skip*scooby:scooby:endex,2),lead_R2T_3(1+skip*scooby:scooby:endex,1),lead_R2T_3(1+skip*scooby:scooby:endex,3),'g o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot3(lead_R2T_1(1+skip*scooby:endex,2),lead_R2T_1(1+skip*scooby:endex,1),lead_R2T_1(1+skip*scooby:endex,3),'b --')
-    plot3(lead_R2T_2(1+skip*scooby:endex,2),lead_R2T_2(1+skip*scooby:endex,1),lead_R2T_2(1+skip*scooby:endex,3),'r --')
-    plot3(lead_R2T_3(1+skip*scooby:endex,2),lead_R2T_3(1+skip*scooby:endex,1),lead_R2T_3(1+skip*scooby:endex,3),'g --')
-    plot3(lead_pos(1+skip*scooby:endex,2),lead_pos(1+skip*scooby:endex,1),lead_pos(1+skip*scooby:endex,3),'k --')
-%     zlim([-20,0])
+    plot3(lead_pos(endex2,2),lead_pos(endex2,1),lead_pos(endex2,3),'k d','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize-diasize)
+    plot3(lead_pos(endex3,2),lead_pos(endex3,1),lead_pos(endex3,3),'k s','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize)
+    plot3(lead_pos(endex,2),lead_pos(endex,1),lead_pos(endex,3),'k o--','LineWidth',1.2,'MarkerSize',plt_stuff.msize)
+    plot3(lead_pos(endex2,2),lead_pos(endex2,1),lead_pos(endex2,3),'k d--','LineWidth',1.2,'MarkerSize',plt_stuff.msize-diasize)
+    plot3(lead_pos(endex3,2),lead_pos(endex3,1),lead_pos(endex3,3),'k s--','LineWidth',1.2,'MarkerSize',plt_stuff.msize)
+    plot3(lead_pos(endex:endex3,2),lead_pos(endex:endex3,1),lead_pos(endex:endex3,3),'k --')
+    
+    
+    
+    plot3(agent_pos_1(endex,2),agent_pos_1(endex,1),agent_pos_1(endex,3),'bo','LineWidth',2,'MarkerEdgeColor','b','MarkerFaceColor','b','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_1(endex2,2),agent_pos_1(endex2,1),agent_pos_1(endex2,3),'b d','LineWidth',2,'MarkerEdgeColor','b','MarkerFaceColor','b','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_1(endex3,2),agent_pos_1(endex3,1),agent_pos_1(endex3,3),'b s','LineWidth',2,'MarkerEdgeColor','b','MarkerFaceColor','b','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_1(endex,2),lead_R2T_1(endex,1),lead_R2T_1(endex,3),'b o','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_1(endex2,2),lead_R2T_1(endex2,1),lead_R2T_1(endex2,3),'b d','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_1(endex3,2),lead_R2T_1(endex3,1),lead_R2T_1(endex3,3),'b s','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_1(endex:endex3,2),agent_pos_1(endex:endex3,1),agent_pos_1(endex:endex3,3),'b -')
+    plot3(lead_R2T_1(endex:endex3,2),lead_R2T_1(endex:endex3,1),lead_R2T_1(endex:endex3,3),'b --')
+    
+   
+    plot3(agent_pos_2(endex,2),agent_pos_2(endex,1),agent_pos_2(endex,3),'ro','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_2(endex2,2),agent_pos_2(endex2,1),agent_pos_2(endex2,3),'r d','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_2(endex3,2),agent_pos_2(endex3,1),agent_pos_2(endex3,3),'r s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_2(endex,2),lead_R2T_2(endex,1),lead_R2T_2(endex,3),'r o','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_2(endex2,2),lead_R2T_2(endex2,1),lead_R2T_2(endex2,3),'r d','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_2(endex3,2),lead_R2T_2(endex3,1),lead_R2T_2(endex3,3),'r s','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_2(endex:endex3,2),lead_R2T_2(endex:endex3,1),lead_R2T_2(endex:endex3,3),'r --')
+    plot3(agent_pos_2(endex:endex3,2),agent_pos_2(endex:endex3,1),agent_pos_2(endex:endex3,3),'r -')
+    
+    
+    
+    
+    
+    plot3(agent_pos_3(endex,2),agent_pos_3(endex,1),agent_pos_3(endex,3),'go','LineWidth',2,'MarkerEdgeColor','g','MarkerFaceColor','g','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_3(endex2,2),agent_pos_3(endex2,1),agent_pos_3(endex2,3),'g d','LineWidth',2,'MarkerEdgeColor','g','MarkerFaceColor','g','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_3(endex3,2),agent_pos_3(endex3,1),agent_pos_3(endex3,3),'g s','LineWidth',2,'MarkerEdgeColor','g','MarkerFaceColor','g','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_3(endex,2),lead_R2T_3(endex,1),lead_R2T_3(endex,3),'g o','LineWidth',1.5,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_3(endex2,2),lead_R2T_3(endex2,1),lead_R2T_3(endex2,3),'g d','LineWidth',1.5,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize)
+    plot3(lead_R2T_3(endex3,2),lead_R2T_3(endex3,1),lead_R2T_3(endex3,3),'g s','LineWidth',1.5,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize)
+    plot3(agent_pos_3(endex:endex3,2),agent_pos_3(endex:endex3,1),agent_pos_3(endex:endex3,3),'g -')
+    plot3(lead_R2T_3(endex:endex3,2),lead_R2T_3(endex:endex3,1),lead_R2T_3(endex:endex3,3),'g --')
+    
+    
+%     plot3(lead_pos(endex,2),lead_pos(endex,1),lead_pos(endex,3),'k o','MarkerSize',plt_stuff.msize)
+%     plot3(lead_pos(endex2,2),lead_pos(endex2,1),lead_pos(endex2,3),'k d','MarkerSize',plt_stuff.msize)
+%     plot3(lead_pos(endex3,2),lead_pos(endex3,1),lead_pos(endex3,3),'k s','MarkerSize',plt_stuff.msize)
+%     plot3(lead_pos(endex:endex3,2),lead_pos(endex:endex3,1),lead_pos(endex:endex3,3),'k --')
+    
+    hold off
+    
     axis equal
+    xlim([-6 6])
+%     ylim([-6 6])
+%     zlim([-20,0])
+    
     xlabel('$e_2^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     ylabel('$e_1^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     zlabel('$e_3^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     grid on
-    leg_fig2 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g}$','$q_{\rm g} + \delta_1$','$q_{\rm g} + \delta_2$','$q_{\rm g} + \delta_3$'},'orientation','horizontal'); % sets the legend entries to nothing
+    leg_fig2 = legend({'$q_i(30)$','$q_i(40)$','$q_i(50)$','$q_{\rm g}(30) + \delta_i(30)$','$q_{\rm g}(40) + \delta_i(40)$','$q_{\rm g}(50) + \delta_i(50)$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
     set(leg_fig2,'interpreter','latex','FontSize',plt_stuff.leg_fsize,'NumColumns',4,'location','SouthWest') % removes the legend from the plot
     % Set figure properties and save it as tikz and pdf files.
@@ -915,32 +983,83 @@ function myPlots(plt_stuff,data,di)
     set(fig_three,'Resize','on')
 %     matlab2tikz(tikz_path_1,'height', '\fheight', 'width', '\fwidth' );
     
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     fig_two = figure;
-    plot(agent_pos_1(1+skip*scooby:scooby:endex,2),agent_pos_1(1+skip*scooby:scooby:endex,1),'b o','LineWidth',2,'MarkerFaceColor','b','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    
+    plot(lead_pos(endex,2),lead_pos(endex,1),'k o','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize)
     hold on
-    plot(agent_pos_2(1+skip*scooby:scooby:endex,2),agent_pos_2(1+skip*scooby:scooby:endex,1),'r o','LineWidth',2,'MarkerFaceColor','r','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
-    plot(agent_pos_3(1+skip*scooby:scooby:endex,2),agent_pos_3(1+skip*scooby:scooby:endex,1),'g o','LineWidth',2,'MarkerFaceColor','g','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
-    plot(lead_pos(1+skip*scooby:scooby:endex,2),lead_pos(1+skip*scooby:scooby:endex,1),'k x','MarkerSize',plt_stuff.msize)
-    plot(lead_R2T_1(1+skip*scooby:scooby:endex,2),lead_R2T_1(1+skip*scooby:scooby:endex,1),'b o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot(lead_R2T_2(1+skip*scooby:scooby:endex,2),lead_R2T_2(1+skip*scooby:scooby:endex,1),'r o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot(lead_R2T_3(1+skip*scooby:scooby:endex,2),lead_R2T_3(1+skip*scooby:scooby:endex,1),'g o','LineWidth',1.5,'MarkerEdgeColor','k','MarkerSize',plt_stuff.msize)
-    plot(lead_pos(1+skip*scooby:endex,2),lead_pos(1+skip*scooby:endex,1),'k --')
-%     plot(lead_pos(1+skip*scooby,2),lead_pos(1+skip*scooby,1),'y x')
-    plot(lead_R2T_1(1+skip*scooby:endex,2),lead_R2T_1(1+skip*scooby:endex,1),'b --')
-    plot(lead_R2T_2(1+skip*scooby:endex,2),lead_R2T_2(1+skip*scooby:endex,1),'r --')
-    plot(lead_R2T_3(1+skip*scooby:endex,2),lead_R2T_3(1+skip*scooby:endex,1),'g --')
+    plot(lead_pos(endex2,2),lead_pos(endex2,1),'k d','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize-diasize)
+    plot(lead_pos(endex3,2),lead_pos(endex3,1),'k s','LineWidth',2,'MarkerFaceColor','k','MarkerSize',plt_stuff.msize)
+    plot(lead_pos(endex,2),lead_pos(endex,1),'k o--','LineWidth',1.2,'MarkerSize',plt_stuff.msize)
+    plot(lead_pos(endex2,2),lead_pos(endex2,1),'k d--','LineWidth',1.2,'MarkerSize',plt_stuff.msize-diasize)
+    plot(lead_pos(endex3,2),lead_pos(endex3,1),'k s--','LineWidth',1.2,'MarkerSize',plt_stuff.msize)
+    plot(lead_pos(endex:endex3,2),lead_pos(endex:endex3,1),'k --')
+    
+    
+    
+    plot(agent_pos_1(endex,2),agent_pos_1(endex,1),'b o','LineWidth',2,'MarkerFaceColor','b','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_1(endex2,2),agent_pos_1(endex2,1),'b d','LineWidth',2,'MarkerFaceColor','b','MarkerSize',plt_stuff.msize-diasize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_1(endex3,2),agent_pos_1(endex3,1),'b s','LineWidth',2,'MarkerFaceColor','b','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(lead_R2T_1(endex,2),lead_R2T_1(endex,1),'b o--','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize)
+    plot(lead_R2T_1(endex2,2),lead_R2T_1(endex2,1),'b d--','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize-diasize)
+    plot(lead_R2T_1(endex3,2),lead_R2T_1(endex3,1),'b s--','LineWidth',1.2,'MarkerEdgeColor','b','MarkerSize',plt_stuff.msize)
+    plot(agent_pos_1(endex:endex3,2),agent_pos_1(endex:endex3,1),'b -')
+    plot(lead_R2T_1(endex:endex3,2),lead_R2T_1(endex:endex3,1),'b --')
+    
+    plot(agent_pos_2(endex,2),agent_pos_2(endex,1),'r o','LineWidth',2,'MarkerFaceColor','r','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_2(endex2,2),agent_pos_2(endex2,1),'r d','LineWidth',2,'MarkerFaceColor','r','MarkerSize',plt_stuff.msize-diasize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_2(endex3,2),agent_pos_2(endex3,1),'r s','LineWidth',2,'MarkerFaceColor','r','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(lead_R2T_2(endex,2),lead_R2T_2(endex,1),'r o--','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize)
+    plot(lead_R2T_2(endex2,2),lead_R2T_2(endex2,1),'r d--','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize-diasize)
+    plot(lead_R2T_2(endex3,2),lead_R2T_2(endex3,1),'r s--','LineWidth',1.2,'MarkerEdgeColor','r','MarkerSize',plt_stuff.msize)
+    plot(agent_pos_2(endex:endex3,2),agent_pos_2(endex:endex3,1),'r -')
+    plot(lead_R2T_2(endex:endex3,2),lead_R2T_2(endex:endex3,1),'r --')
+    
+    
+    
+    
+    plot(agent_pos_3(endex,2),agent_pos_3(endex,1),'g o','LineWidth',2,'MarkerFaceColor','g','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_3(endex2,2),agent_pos_3(endex2,1),'g d','LineWidth',2,'MarkerFaceColor','g','MarkerSize',plt_stuff.msize-diasize) % ,'MarkerEdgeColor','k'
+    plot(agent_pos_3(endex3,2),agent_pos_3(endex3,1),'g s','LineWidth',2,'MarkerFaceColor','g','MarkerSize',plt_stuff.msize) % ,'MarkerEdgeColor','k'
+    plot(lead_R2T_3(endex,2),lead_R2T_3(endex,1),'g o--','LineWidth',1.2,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize)
+    plot(lead_R2T_3(endex2,2),lead_R2T_3(endex2,1),'g d--','LineWidth',1.2,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize-diasize)
+    plot(lead_R2T_3(endex3,2),lead_R2T_3(endex3,1),'g s--','LineWidth',1.2,'MarkerEdgeColor','g','MarkerSize',plt_stuff.msize)
+    plot(agent_pos_3(endex:endex3,2),agent_pos_3(endex:endex3,1),'g -')
+    plot(lead_R2T_3(endex:endex3,2),lead_R2T_3(endex:endex3,1),'g --')
+    
+    
+    
+    
+%     plot(lead_pos(endex,2),lead_pos(endex,1),'k o','MarkerSize',plt_stuff.msize)
+%     plot(lead_pos(endex2,2),lead_pos(endex2,1),'k d','MarkerSize',plt_stuff.msize-diasize)
+%     plot(lead_pos(endex3,2),lead_pos(endex3,1),'k s','MarkerSize',plt_stuff.msize)
+    
+    
     hold off
     xlabel('$e_2^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
     ylabel('$e_1^{\rm T} q_i$~(m)','interpreter','latex','FontSize',plt_stuff.fsize)
-    xlim([-11 10])
-    ylim([-11 10])
+    xlim([-8 16])
+    ylim([-10 10])
     grid on
     axis equal
-    leg_fig2 = legend({'$q_1$','$q_2$','$q_3$','$q_{\rm g}$','$q_{\rm g} + \delta_1$','$q_{\rm g} + \delta_2$','$q_{\rm g} + \delta_3$'},'orientation','horizontal'); % sets the legend entries to nothing
+    leg_fig2 = legend({'$q_i(30)$','$q_i(37)$','$q_i(44)$','$q_{\rm g}(30) + \delta_i(30)$','$q_{\rm g}(37) + \delta_i(37)$','$q_{\rm g}(44) + \delta_i(44)$'},'orientation','horizontal'); % sets the legend entries to nothing
     legend boxoff
-    set(leg_fig2,'interpreter','latex','FontSize',plt_stuff.leg_fsize,'NumColumns',4,'location','SouthWest') % removes the legend from the plot
+    set(leg_fig2,'interpreter','latex','FontSize',plt_stuff.leg_fsize,'NumColumns',1,'location','SouthWest') % removes the legend from the plot
 %     x1 = [0.4 0.48];
 %     y1 = [0.7 0.64];
 %     str1 = '$t = 40.2$~s~';
